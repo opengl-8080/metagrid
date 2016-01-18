@@ -1,0 +1,23 @@
+allprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+
+    repositories {
+        mavenCentral()
+    }
+
+    sourceCompatibility = '1.7'
+    targetCompatibility = '1.7'
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    dependencies {
+        testCompile 'junit:junit:4.12', {transitive = false}
+        testCompile 'de.bechte.junit:junit-hierarchicalcontextrunner:4.12.1'
+        testCompile 'org.assertj:assertj-core:2.3.0'
+        testCompile 'org.jmockit:jmockit:1.21'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.10'
+}
