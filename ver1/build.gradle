@@ -1,3 +1,7 @@
+ext {
+    libName = 'metagrid'
+}
+
 allprojects {
     apply plugin: 'java'
     apply plugin: 'eclipse'
@@ -10,11 +14,39 @@ allprojects {
     targetCompatibility = '1.7'
     [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
+    configurations {
+        provided
+        provided.extendsFrom(compile)
+    }
+     
+    sourceSets {
+        main.compileClasspath += configurations.provided
+        test.compileClasspath += configurations.provided
+        test.runtimeClasspath += configurations.provided
+    }
+
     dependencies {
+        compile 'org.slf4j:slf4j-api:1.7.13'
         testCompile 'junit:junit:4.12', {transitive = false}
         testCompile 'de.bechte.junit:junit-hierarchicalcontextrunner:4.12.1'
         testCompile 'org.assertj:assertj-core:2.3.0'
         testCompile 'org.jmockit:jmockit:1.21'
+    }
+
+    eclipse.classpath {
+        plusConfigurations += [configurations.provided]
+        noExportConfigurations += [configurations.provided]
+
+        file.whenMerged { cp ->
+            cp.entries.findAll { it.path.contains('JRE_CONTAINER') }.each {
+                it.path += "/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk7"
+            }
+        }
+    }
+
+    jar {
+        baseName = libName
+        version = '1.0.0'
     }
 }
 
