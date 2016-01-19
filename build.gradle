@@ -1,5 +1,6 @@
 ext {
     libName = 'metagrid'
+    libVersion = '1.0.0'
 }
 
 allprojects {
@@ -46,7 +47,7 @@ allprojects {
 
     jar {
         baseName = libName
-        version = '1.0.0'
+        version = libVersion
     }
 }
 
