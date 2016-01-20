@@ -35,7 +35,7 @@ public class MetagridConfigTest {
         MetagridConfig config = parseXml(xml);
         
         // verify
-        assertThat(config.datasource.jndi).isEqualTo("foo:bar/datasource");
+        assertThat(config.getDatasource().getJndi()).isEqualTo("foo:bar/datasource");
     }
 
     private MetagridConfig parseXml(String xml) {

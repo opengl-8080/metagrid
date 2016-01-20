@@ -4,6 +4,15 @@ import javax.xml.bind.annotation.XmlAttribute;
 
 public class DataSourceConfig {
     
+    private String jndi;
+
     @XmlAttribute
-    public String jndi;
+    public String getJndi() {
+        return jndi;
+    }
+
+    void setJndi(String jndi) {
+        this.jndi = jndi;
+    }
+    
 }
