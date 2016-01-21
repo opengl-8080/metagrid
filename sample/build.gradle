@@ -4,6 +4,7 @@ apply plugin: 'eclipse-wtp'
 dependencies {
     compile project(':core')
     compile 'ch.qos.logback:logback-classic:1.1.3'
+    compile fileTree(dir: 'lib', include: '*.jar')
     providedCompile 'fish.payara.extras:payara-micro:4.1.1.154'
 }
 

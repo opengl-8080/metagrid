@@ -6,13 +6,22 @@
          version="3.1">
   
   <data-source>
-    <name>java:app/database</name>
+    <name>java:app/derby</name>
     <class-name>org.apache.derby.jdbc.EmbeddedDataSource</class-name>
     <database-name>database</database-name>
     <property>
       <name>connectionAttributes</name>
       <value>;create=true</value>
     </property>
+    <transactional>true</transactional>
+  </data-source>
+  
+  <data-source>
+    <name>java:app/oracle</name>
+    <class-name>oracle.jdbc.pool.OracleDataSource</class-name>
+    <url>jdbc:oracle:thin:@localhost:1521:test</url>
+    <user>test</user>
+    <password>test</password>
     <transactional>true</transactional>
   </data-source>
 </web-app>
