@@ -1,7 +1,6 @@
 package com.github.gl8080.metagrid.core.config;
 
 import java.io.InputStream;
-import java.io.Reader;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
@@ -10,22 +9,20 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name="metagrid")
 public class MetagridConfig {
     
-    public static final MetagridConfig instance;
+    private static final String CONFIG_FILE_PATH = "/metagrid.xml";
     
-    static {
-        InputStream resourceAsStream = MetagridConfig.class.getResourceAsStream("/metagrid.xml");
-        if (resourceAsStream == null) {
-            throw new IllegalStateException("metagrid.xml がクラスパス直下に存在しません。");
-        }
-        instance = read(resourceAsStream);
+    private static MetagridConfig instance;
+    
+    public static InputStream getConfigFileStream() {
+        return MetagridConfig.class.getResourceAsStream(CONFIG_FILE_PATH);
     }
-    
-    static MetagridConfig read(InputStream input) {
-        return JAXB.unmarshal(input, MetagridConfig.class);
+
+    public static void initialize(InputStream in) {
+        instance = JAXB.unmarshal(in, MetagridConfig.class);
     }
-    
-    static MetagridConfig read(Reader reader) {
-        return JAXB.unmarshal(reader, MetagridConfig.class);
+
+    public static MetagridConfig getInstance() {
+        return instance;
     }
     
     private DataSourceConfig datasource;

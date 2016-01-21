@@ -2,13 +2,15 @@ package com.github.gl8080.metagrid.core.config;
 
 import static org.assertj.core.api.Assertions.*;
 
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import org.junit.Test;
 
 public class MetagridConfigTest {
-
+    
+    
+    
     @Test
     public void ルートタグは_metagrid_でマッピングされること() {
         // setup
@@ -17,7 +19,7 @@ public class MetagridConfigTest {
                    + "</metagrid>";
         
         // exercise
-        MetagridConfig config = parseXml(xml);
+        MetagridConfig config = loadConfig(xml);
         
         // verify
         assertThat(config).isNotNull();
@@ -32,14 +34,15 @@ public class MetagridConfigTest {
                    + "</metagrid>";
         
         // exercise
-        MetagridConfig config = parseXml(xml);
+        MetagridConfig config = loadConfig(xml);
         
         // verify
         assertThat(config.getDatasource().getJndi()).isEqualTo("foo:bar/datasource");
     }
-
-    private MetagridConfig parseXml(String xml) {
-        Reader reader = new StringReader(xml);
-        return MetagridConfig.read(reader);
+    
+    private MetagridConfig loadConfig(String xml) {
+        InputStream in = new ByteArrayInputStream(xml.getBytes());
+        MetagridConfig.initialize(in);
+        return MetagridConfig.getInstance();
     }
 }

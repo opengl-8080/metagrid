@@ -15,7 +15,7 @@ public class SampleResource {
     @GET
     public String hello() throws NamingException {
         Context ctx = new InitialContext();
-        DataSource ds = (DataSource) ctx.lookup(MetagridConfig.instance.getDatasource().getJndi());
+        DataSource ds = (DataSource) ctx.lookup(MetagridConfig.getInstance().getDatasource().getJndi());
         
         System.out.println(ds);
         
