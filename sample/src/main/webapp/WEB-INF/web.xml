@@ -17,6 +17,16 @@
   </data-source>
   
   <data-source>
+    <name>java:app/mysql</name>
+    <class-name>com.mysql.jdbc.jdbc2.optional.MysqlDataSource</class-name>
+    <server-name>localhost</server-name>
+    <database-name>test</database-name>
+    <user>test</user>
+    <password>test</password>
+    <transactional>true</transactional>
+  </data-source>
+  
+  <data-source>
     <name>java:app/oracle</name>
     <class-name>oracle.jdbc.pool.OracleDataSource</class-name>
     <url>jdbc:oracle:thin:@localhost:1521:test</url>
