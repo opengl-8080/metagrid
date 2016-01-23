@@ -1,7 +1,6 @@
 package com.github.gl8080.metagrid.core.db;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Rule;
