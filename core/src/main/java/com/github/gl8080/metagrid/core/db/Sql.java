@@ -13,11 +13,6 @@ public class Sql<R> {
         this.processorSupplier = processorSupplier;
     }
     
-    @Override
-    public String toString() {
-        return this.text;
-    }
-    
     public R executeQuery() {
         SqlProcessor<R> sqlProcessor = this.processorSupplier.get();
         
