@@ -33,4 +33,13 @@ public class JdbcHelper {
             throw new MetaGridException(e);
         }
     }
+    
+    public DatabaseType getDatabaseType() {
+        try (Connection con = this.getDataSource().getConnection();) {
+            String productName = con.getMetaData().getDatabaseProductName();
+            return DatabaseType.valueOf(productName);
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
 }
