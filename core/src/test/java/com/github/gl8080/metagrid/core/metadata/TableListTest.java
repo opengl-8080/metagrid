@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.db;
+package com.github.gl8080.metagrid.core.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -9,6 +9,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import com.github.gl8080.metagrid.core.metadata.Table;
+import com.github.gl8080.metagrid.core.metadata.TableList;
 
 public class TableListTest {
     

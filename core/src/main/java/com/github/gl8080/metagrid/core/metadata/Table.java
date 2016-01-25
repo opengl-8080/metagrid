@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.db;
+package com.github.gl8080.metagrid.core.metadata;
 
 import java.util.Objects;
 

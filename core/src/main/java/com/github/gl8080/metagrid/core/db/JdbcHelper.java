@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.db.helper;
+package com.github.gl8080.metagrid.core.db;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

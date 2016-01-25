@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.db;
+package com.github.gl8080.metagrid.core.metadata;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -8,7 +8,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import com.github.gl8080.metagrid.core.db.Table.Builder;
+import com.github.gl8080.metagrid.core.metadata.Table;
+import com.github.gl8080.metagrid.core.metadata.Table.Builder;
 
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
 
