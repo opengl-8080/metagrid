@@ -9,11 +9,15 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.github.gl8080.metagrid.core.MetaGridException;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
-import com.github.gl8080.metagrid.core.util.Consumer;
+import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 public class JdbcHelper {
+    private static final Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
     
     public DataSource getDataSource() throws NamingException {
         Context ctx = new InitialContext();
@@ -21,7 +25,9 @@ public class JdbcHelper {
         return ds;
     }
     
-    public void executeQuery(String sql, Consumer<ResultSet> consumer) {
+    public void executeQuery(String sql, ThrowableConsumer<ResultSet> consumer) {
+        logger.debug(sql);
+        
         try (Connection con = this.getDataSource().getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery();) {
@@ -37,7 +43,7 @@ public class JdbcHelper {
     public DatabaseType getDatabaseType() {
         try (Connection con = this.getDataSource().getConnection();) {
             String productName = con.getMetaData().getDatabaseProductName();
-            return DatabaseType.valueOf(productName);
+            return DatabaseType.of(productName);
         } catch (Exception e) {
             throw new MetaGridException(e);
         }

@@ -7,6 +7,6 @@ public enum DatabaseType {
     ;
     
     public static DatabaseType of(String productName) {
-        return DatabaseType.of(productName.toUpperCase());
+        return DatabaseType.valueOf(productName.toUpperCase());
     }
 }
