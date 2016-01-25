@@ -39,9 +39,13 @@ allprojects {
         noExportConfigurations += [configurations.provided]
 
         file.whenMerged { cp ->
-            cp.entries.findAll { it.path.contains('JRE_CONTAINER') }.each {
-                it.path += "/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk7"
-            }
+            def container = cp.entries.find { it.path.contains('JRE_CONTAINER') }
+            container.path += "/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk7"
+
+            def jmockit = cp.entries.findAll { it.path =~ /jmockit.*/}
+            def others = cp.entries.findAll { !(it.path =~ /jmockit.*/) }
+
+            cp.entries = jmockit + others
         }
     }
 
