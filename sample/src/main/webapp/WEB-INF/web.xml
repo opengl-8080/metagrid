@@ -34,4 +34,13 @@
     <password>test</password>
     <transactional>true</transactional>
   </data-source>
+  
+  <data-source>
+    <name>java:app/oracle_metagrid</name>
+    <class-name>oracle.jdbc.pool.OracleDataSource</class-name>
+    <url>jdbc:oracle:thin:@localhost:1521:test</url>
+    <user>metagrid</user>
+    <password>metagrid</password>
+    <transactional>true</transactional>
+  </data-source>
 </web-app>

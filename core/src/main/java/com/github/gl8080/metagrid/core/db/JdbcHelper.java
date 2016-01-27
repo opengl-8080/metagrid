@@ -3,6 +3,7 @@ package com.github.gl8080.metagrid.core.db;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Objects;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -13,15 +14,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.github.gl8080.metagrid.core.MetaGridException;
+import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 public class JdbcHelper {
     private static final Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
     
+    private final DataSourceConfig config;
+    
+    public JdbcHelper() {
+        this(MetagridConfig.getInstance().getDefaultDataSource());
+    }
+    
+    public JdbcHelper(DataSourceConfig config) {
+        Objects.requireNonNull(config);
+        this.config = config;
+    }
+    
     public DataSource getDataSource() throws NamingException {
         Context ctx = new InitialContext();
-        DataSource ds = (DataSource) ctx.lookup(MetagridConfig.getInstance().getDefaultDataSource().getJndi());
+        DataSource ds = (DataSource) ctx.lookup(this.config.getJndi());
         return ds;
     }
     

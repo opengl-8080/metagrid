@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE metagrid>
 <metagrid>
-  <repository jndi="java:app/oracle" />
+  <repository jndi="java:app/oracle_metagrid" />
   
   <datasources>
     <datasource jndi="java:app/oracle" />
