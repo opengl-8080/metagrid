@@ -21,7 +21,7 @@ public class JdbcHelper {
     
     public DataSource getDataSource() throws NamingException {
         Context ctx = new InitialContext();
-        DataSource ds = (DataSource) ctx.lookup(MetagridConfig.getInstance().getDatasource().getJndi());
+        DataSource ds = (DataSource) ctx.lookup(MetagridConfig.getInstance().getDefaultDataSource().getJndi());
         return ds;
     }
     

@@ -1,9 +1,12 @@
 package com.github.gl8080.metagrid.core.config;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.bind.JAXB;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.slf4j.Logger;
@@ -35,15 +38,23 @@ public class MetagridConfig {
     public static MetagridConfig getInstance() {
         return instance;
     }
-    
-    private DataSourceConfig datasource;
 
-    @XmlElement
-    public DataSourceConfig getDatasource() {
-        return datasource;
+    @XmlElement(name="datasource")
+    @XmlElementWrapper(name="datasources")
+    private List<DataSourceConfig> datasources;
+    
+    @XmlElement(name="repository")
+    private DataSourceConfig repository;
+
+    public List<DataSourceConfig> getDataSources() {
+        return this.datasources;
+    }
+    
+    public DataSourceConfig getDefaultDataSource() {
+        return this.datasources.get(0);
     }
 
-    void setDatasource(DataSourceConfig datasource) {
-        this.datasource = datasource;
+    public DataSourceConfig getRepositoryDataSource() {
+        return this.repository;
     }
 }

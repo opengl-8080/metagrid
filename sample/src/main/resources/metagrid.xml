@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE metagrid>
 <metagrid>
-  <datasource jndi="java:app/mysql" />
+  <repository jndi="java:app/oracle" />
+  
+  <datasources>
+    <datasource jndi="java:app/oracle" />
+  </datasources>
 </metagrid>
