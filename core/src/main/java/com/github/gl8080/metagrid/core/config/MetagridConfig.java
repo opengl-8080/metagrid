@@ -1,7 +1,6 @@
 package com.github.gl8080.metagrid.core.config;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.JAXB;

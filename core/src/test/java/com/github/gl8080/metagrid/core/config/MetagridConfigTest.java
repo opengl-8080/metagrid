@@ -1,7 +1,6 @@
 package com.github.gl8080.metagrid.core.config;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
