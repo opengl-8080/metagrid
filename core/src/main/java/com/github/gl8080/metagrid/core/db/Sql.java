@@ -16,7 +16,7 @@ public class Sql<R> {
     public R executeQuery() {
         SqlProcessor<R> sqlProcessor = this.processorSupplier.get();
         
-        jdbc.executeQuery(this.text, sqlProcessor);
+        jdbc.query(this.text, sqlProcessor);
         
         return sqlProcessor.getResult();
     }

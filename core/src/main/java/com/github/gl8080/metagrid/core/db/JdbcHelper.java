@@ -3,6 +3,7 @@ package com.github.gl8080.metagrid.core.db;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Arrays;
 import java.util.Objects;
 
 import javax.naming.Context;
@@ -38,7 +39,21 @@ public class JdbcHelper {
         return ds;
     }
     
-    public void executeQuery(String sql, ThrowableConsumer<ResultSet> consumer) {
+    public int queryInt(String sql) {
+        logger.debug(sql);
+        
+        try (Connection con = this.getDataSource().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery();) {
+            
+            rs.next();
+            return rs.getInt(1);
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
+    
+    public void query(String sql, ThrowableConsumer<ResultSet> consumer) {
         logger.debug(sql);
         
         try (Connection con = this.getDataSource().getConnection();
@@ -48,6 +63,26 @@ public class JdbcHelper {
             while (rs.next()) {
                 consumer.consume(rs);
             }
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
+    
+    public int update(String sql, Object[] parameters) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(sql);
+            logger.debug(Arrays.toString(parameters));
+        }
+        
+        try (Connection con = this.getDataSource().getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);) {
+            
+            int idx = 0;
+            for (Object parameter : parameters) {
+                ps.setObject(++idx, parameter);
+            }
+            
+            return ps.executeUpdate();
         } catch (Exception e) {
             throw new MetaGridException(e);
         }
