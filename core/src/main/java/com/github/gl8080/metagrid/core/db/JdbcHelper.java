@@ -10,6 +10,12 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.transaction.HeuristicMixedException;
+import javax.transaction.HeuristicRollbackException;
+import javax.transaction.NotSupportedException;
+import javax.transaction.RollbackException;
+import javax.transaction.SystemException;
+import javax.transaction.UserTransaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +43,12 @@ public class JdbcHelper {
         Context ctx = new InitialContext();
         DataSource ds = (DataSource) ctx.lookup(this.config.getJndi());
         return ds;
+    }
+    
+    private UserTransaction getUserTransaction() throws NamingException {
+        Context ctx = new InitialContext();
+        UserTransaction tx = (UserTransaction) ctx.lookup("java:comp/UserTransaction");
+        return tx;
     }
     
     public int queryInt(String sql) {
@@ -93,6 +105,30 @@ public class JdbcHelper {
             String productName = con.getMetaData().getDatabaseProductName();
             return DatabaseType.of(productName);
         } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
+    
+    public void beginTransaction() {
+        try {
+            this.getUserTransaction().begin();
+        } catch (NotSupportedException | SystemException | NamingException e) {
+            throw new MetaGridException(e);
+        }
+    }
+    
+    public void commitTransaction() {
+        try {
+            this.getUserTransaction().commit();
+        } catch (SecurityException | IllegalStateException | RollbackException | HeuristicMixedException | HeuristicRollbackException | SystemException | NamingException e) {
+            throw new MetaGridException(e);
+        }
+    }
+    
+    public void rollbackTransaction() {
+        try {
+            this.getUserTransaction().rollback();
+        } catch (IllegalStateException | SecurityException | SystemException | NamingException e) {
             throw new MetaGridException(e);
         }
     }

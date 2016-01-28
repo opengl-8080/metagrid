@@ -25,23 +25,30 @@ public class TableDefinitionResource {
             
             DataSourceConfig repositoryConfig = MetagridConfig.getInstance().getRepositoryDataSource();
             JdbcHelper jdbc = new JdbcHelper(repositoryConfig);
+            jdbc.beginTransaction();
             
-            while ((line = br.readLine()) != null) {
-                int nextId = jdbc.queryInt("SELECT TABLE_DEFINITION_SEQ.NEXTVAL FROM DUAL");
-                
-                String[] elements = line.split(",");
-                
-                Object[] parameters = new Object[elements.length + 1];
-                parameters[0] = nextId;
-                
-                for (int i=0; i<elements.length; i++) {
-                    String element = elements[i];
-                    element = element.replaceAll("^\"|\"$", "").replaceAll("\"\"", "\"");
-                    parameters[i + 1] = element;
+            try {
+                while ((line = br.readLine()) != null) {
+                    int nextId = jdbc.queryInt("SELECT TABLE_DEFINITION_SEQ.NEXTVAL FROM DUAL");
+                    
+                    String[] elements = line.split(",");
+                    
+                    Object[] parameters = new Object[elements.length + 1];
+                    parameters[0] = nextId;
+                    
+                    for (int i=0; i<elements.length; i++) {
+                        String element = elements[i];
+                        element = element.replaceAll("^\"|\"$", "").replaceAll("\"\"", "\"");
+                        parameters[i + 1] = element;
+                    }
+                    
+                    int count = jdbc.update("INSERT INTO TABLE_DEFINITION (ID, PHYSICAL_NAME, LOGICAL_NAME) VALUES (?, ?, ?)", parameters);
+                    System.out.println("count=" + count);
                 }
-                
-                int count = jdbc.update("INSERT INTO TABLE_DEFINITION (ID, PHYSICAL_NAME, LOGICAL_NAME) VALUES (?, ?, ?)", parameters);
-                System.out.println("count=" + count);
+                jdbc.commitTransaction();
+            } catch (Exception e) {
+                e.printStackTrace();
+                jdbc.rollbackTransaction();
             }
         }
         
