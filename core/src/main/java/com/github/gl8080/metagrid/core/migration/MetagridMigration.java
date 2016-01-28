@@ -26,20 +26,9 @@ public class MetagridMigration {
         
         DatabaseType databaseType = jdbc.getDatabaseType();
         logger.info("データベース種別 = {}", databaseType);
+        flyway.setLocations("db/migration/" + databaseType.name().toLowerCase());
         
-        switch (databaseType) {
-        case ORACLE:
-            flyway.setLocations("db/migration/oracle");
-            break;
-        case MYSQL:
-            flyway.setLocations("db/migration/mysql");
-            break;
-        case POSTGRESQL:
-            flyway.setLocations("db/migration/postgresql");
-            break;
-        default:
-            throw new RuntimeException("不明なデータベース種別 : " + databaseType);
-        }
+        flyway.clean(); // TODO 開発が終了したら除去
         
         logger.info("リポジトリをマイグレーションしています。");
         flyway.migrate();
