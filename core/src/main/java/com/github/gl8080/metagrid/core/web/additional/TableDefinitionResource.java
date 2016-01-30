@@ -1,55 +1,56 @@
 package com.github.gl8080.metagrid.core.web.additional;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.db.JdbcHelper;
+import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
+import com.github.gl8080.metagrid.core.web.convert.csv.CsvUploadFile;
 
 @Path("table-definition")
 public class TableDefinitionResource {
-    
+
     @PUT
-    @Produces("text/csv")
+    @Consumes("text/csv")
     public Response load(InputStream in) throws IOException {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(in, "Shift_JIS"))) {
-            String line = null;
-            
-            DataSourceConfig repositoryConfig = MetagridConfig.getInstance().getRepositoryDataSource();
-            JdbcHelper jdbc = new JdbcHelper(repositoryConfig);
-            jdbc.beginTransaction();
-            
-            try {
-                while ((line = br.readLine()) != null) {
+        CsvUploadFile csv = new CsvUploadFile(in);
+        
+        DataSourceConfig repositoryConfig = MetagridConfig.getInstance().getRepositoryDataSource();
+        final JdbcHelper jdbc = new JdbcHelper(repositoryConfig);
+
+        try {
+            csv.each(new ThrowableConsumer<List<String>>() {
+                
+                @Override
+                public void consume(List<String> value) throws Exception {
+                    jdbc.beginTransaction();
+                    
                     int nextId = jdbc.queryInt("SELECT TABLE_DEFINITION_SEQ.NEXTVAL FROM DUAL");
                     
-                    String[] elements = line.split(",");
-                    
-                    Object[] parameters = new Object[elements.length + 1];
+                    Object[] parameters = new Object[value.size() + 1];
                     parameters[0] = nextId;
                     
-                    for (int i=0; i<elements.length; i++) {
-                        String element = elements[i];
-                        element = element.replaceAll("^\"|\"$", "").replaceAll("\"\"", "\"");
-                        parameters[i + 1] = element;
+                    for (int i=0; i<value.size(); i++) {
+                        parameters[i + 1] = value.get(i);
                     }
                     
-                    int count = jdbc.update("INSERT INTO TABLE_DEFINITION (ID, PHYSICAL_NAME, LOGICAL_NAME) VALUES (?, ?, ?)", parameters);
-                    System.out.println("count=" + count);
+                    int cnt = jdbc.update("INSERT INTO TABLE_DEFINITION (ID, PHYSICAL_NAME, LOGICAL_NAME) VALUES (?, ?, ?)", parameters);
+                    System.out.println("cnt = " + cnt);
+                    
+                    jdbc.commitTransaction();
                 }
-                jdbc.commitTransaction();
-            } catch (Exception e) {
-                e.printStackTrace();
-                jdbc.rollbackTransaction();
-            }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+            jdbc.rollbackTransaction();
         }
         
         return Response.ok().build();
