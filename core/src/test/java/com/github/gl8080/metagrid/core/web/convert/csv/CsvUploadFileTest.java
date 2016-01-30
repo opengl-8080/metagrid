@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +21,31 @@ public class CsvUploadFileTest {
     private TestProcessor testProcessor = new TestProcessor();
 
     @Test
-    public void _指定したInputStreamから順次行を取得して_要素に分割したリストをプロセッサに渡す() {
+    public void 文字コードを指定しない場合は_デフォルトでUTF_8を使用する() throws Exception {
+        // setup
+        CsvUploadFile csv = createWithCharset("UTF-8", "あ,い,う");
+        
+        // exercise
+        csv.each(testProcessor);
+        
+        // verify
+        testProcessor.assertContains(_("あ", "い", "う"));
+    }
+
+    @Test
+    public void 文字コードを指定できる() throws Exception {
+        // setup
+        CsvUploadFile csv = createWithCharset("Shift_JIS", "あ,い,う");
+        
+        // exercise
+        csv.each(Charset.forName("Shift_JIS"), testProcessor);
+        
+        // verify
+        testProcessor.assertContains(_("あ", "い", "う"));
+    }
+
+    @Test
+    public void 指定したInputStreamから順次行を取得して_要素に分割したリストをプロセッサに渡す() throws Exception {
         // setup
         CsvUploadFile csv = create(
             "a,b,c",
@@ -91,16 +118,21 @@ public class CsvUploadFileTest {
         return Arrays.asList(strings);
     }
     
-    private static CsvUploadFile create(String... csv) {
+    private static CsvUploadFile createWithCharset(String charset, String... csv) throws UnsupportedEncodingException {
         StringBuilder sb = new StringBuilder();
         
         for (String line : csv) {
             sb.append(line).append("\n");
         }
         
-        InputStream in = new ByteArrayInputStream(sb.toString().getBytes());
+        InputStream in = new ByteArrayInputStream(sb.toString().getBytes(charset));
         
         return new CsvUploadFile(in);
+    }
+    
+    
+    private static CsvUploadFile create(String... csv) throws UnsupportedEncodingException {
+        return createWithCharset("UTF-8", csv);
     }
     
     private static class TestProcessor implements ThrowableConsumer<List<String>> {

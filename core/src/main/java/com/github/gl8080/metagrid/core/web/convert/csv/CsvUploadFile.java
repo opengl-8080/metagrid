@@ -3,6 +3,8 @@ package com.github.gl8080.metagrid.core.web.convert.csv;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -25,7 +27,11 @@ public class CsvUploadFile {
     }
 
     public void each(ThrowableConsumer<List<String>> processor) {
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.in))) {
+        this.each(StandardCharsets.UTF_8, processor);
+    }
+
+    public void each(Charset charset, ThrowableConsumer<List<String>> processor) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(this.in, charset))) {
             String line = null;
             
             while ((line = br.readLine()) != null) {
