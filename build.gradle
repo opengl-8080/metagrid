@@ -28,10 +28,10 @@ allprojects {
 
     dependencies {
         compile 'org.slf4j:slf4j-api:1.7.13'
+        testCompile 'org.jmockit:jmockit:1.21'
         testCompile 'junit:junit:4.12', {transitive = false}
         testCompile 'de.bechte.junit:junit-hierarchicalcontextrunner:4.12.1'
         testCompile 'org.assertj:assertj-core:2.3.0'
-        testCompile 'org.jmockit:jmockit:1.21'
     }
 
     eclipse.classpath {
