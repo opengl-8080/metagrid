@@ -28,7 +28,7 @@ public class CsvUploadFileTest {
         csv.each(testProcessor);
         
         // verify
-        testProcessor.assertContains(_("あ", "い", "う"));
+        testProcessor.assertContains(list("あ", "い", "う"));
     }
 
     @Test
@@ -40,7 +40,7 @@ public class CsvUploadFileTest {
         csv.each(Charset.forName("Shift_JIS"), testProcessor);
         
         // verify
-        testProcessor.assertContains(_("あ", "い", "う"));
+        testProcessor.assertContains(list("あ", "い", "う"));
     }
 
     @Test
@@ -58,10 +58,10 @@ public class CsvUploadFileTest {
         
         // verify
         testProcessor.assertContains(
-            _("a", "b", "c"),
-            _("x", "y", "z"),
-            _("1", "2", "3"),
-            _("あ", "い", "う")
+            list("a", "b", "c"),
+            list("x", "y", "z"),
+            list("1", "2", "3"),
+            list("あ", "い", "う")
         );
     }
     
@@ -74,7 +74,7 @@ public class CsvUploadFileTest {
         csv.each(testProcessor);
         
         // verify
-        testProcessor.assertContains(_("a", "b", ""));
+        testProcessor.assertContains(list("a", "b", ""));
     }
     
     @Test
@@ -86,7 +86,7 @@ public class CsvUploadFileTest {
         csv.each(testProcessor);
         
         // verify
-        testProcessor.assertContains(_("abc", "def"));
+        testProcessor.assertContains(list("abc", "def"));
     }
     
     @Test
@@ -98,7 +98,7 @@ public class CsvUploadFileTest {
         csv.each(testProcessor);
         
         // verify
-        testProcessor.assertContains(_("a\"bc", "def"));
+        testProcessor.assertContains(list("a\"bc", "def"));
     }
     
     @Test
@@ -110,10 +110,10 @@ public class CsvUploadFileTest {
         csv.each(testProcessor);
         
         // verify
-        testProcessor.assertContains(_("a,bc", "def"));
+        testProcessor.assertContains(list("a,bc", "def"));
     }
     
-    private static List<String> _(String... strings) {
+    private static List<String> list(String... strings) {
         return Arrays.asList(strings);
     }
     
