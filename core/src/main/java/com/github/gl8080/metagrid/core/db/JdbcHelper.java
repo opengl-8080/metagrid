@@ -29,6 +29,7 @@ public class JdbcHelper {
     private static final Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
     
     private final DataSourceConfig config;
+    private final Connection con;
     
     public JdbcHelper() {
         this(MetagridConfig.getInstance().getDefaultDataSource());
@@ -37,6 +38,7 @@ public class JdbcHelper {
     public JdbcHelper(DataSourceConfig config) {
         Objects.requireNonNull(config);
         this.config = config;
+        this.con = ConnectionHolder.get(this.config);
     }
     
     public DataSource getDataSource() throws NamingException {
@@ -54,9 +56,8 @@ public class JdbcHelper {
     public int queryInt(String sql) {
         logger.debug(sql);
         
-        try (Connection con = this.getDataSource().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery();) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();) {
             
             rs.next();
             return rs.getInt(1);
@@ -68,9 +69,8 @@ public class JdbcHelper {
     public void query(String sql, ThrowableConsumer<ResultSet> consumer) {
         logger.debug(sql);
         
-        try (Connection con = this.getDataSource().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery();) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();) {
             
             while (rs.next()) {
                 consumer.consume(rs);
@@ -86,8 +86,7 @@ public class JdbcHelper {
             logger.debug(Arrays.toString(parameters));
         }
         
-        try (Connection con = this.getDataSource().getConnection();
-             PreparedStatement ps = con.prepareStatement(sql);) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql);) {
             
             int idx = 0;
             for (Object parameter : parameters) {
@@ -101,8 +100,8 @@ public class JdbcHelper {
     }
     
     public DatabaseType getDatabaseType() {
-        try (Connection con = this.getDataSource().getConnection();) {
-            String productName = con.getMetaData().getDatabaseProductName();
+        try {
+            String productName = this.con.getMetaData().getDatabaseProductName();
             return DatabaseType.of(productName);
         } catch (Exception e) {
             throw new MetaGridException(e);

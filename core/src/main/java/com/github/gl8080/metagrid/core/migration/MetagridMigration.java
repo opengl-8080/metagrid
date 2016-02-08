@@ -18,7 +18,7 @@ public class MetagridMigration {
     public void migrate() throws NamingException {
         DataSourceConfig repositoryConfig = MetagridConfig.getInstance().getRepositoryDataSource();
         JdbcHelper jdbc = new JdbcHelper(repositoryConfig);
-        
+
         DataSource repository = jdbc.getDataSource();
         
         Flyway flyway = new Flyway();
