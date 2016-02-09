@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.definition.meta;
+package com.github.gl8080.metagrid.core.domain.definition.meta;
 
 import java.util.Objects;
 
@@ -7,9 +7,9 @@ import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 
-public class AdditionalTableDefinitionRepository {
+public class MetaTableDefinitionRepository {
     
-    public int register(AdditionalTableDefinition def) {
+    public int register(MetaTableDefinition def) {
         Objects.requireNonNull(def);
         
         DataSourceConfig repositoryConfig = MetagridConfig.getInstance().getRepositoryDataSource();

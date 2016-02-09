@@ -1,8 +1,8 @@
-package com.github.gl8080.metagrid.core.definition.actual.mysql;
+package com.github.gl8080.metagrid.core.infrastructure.sql.mysql;
 
-import com.github.gl8080.metagrid.core.definition.actual.TableListSqlFactory;
+import com.github.gl8080.metagrid.core.infrastructure.sql.AbstractActualTableDefinitionSqlFactory;
 
-public class MySQLTableListSqlFactory extends TableListSqlFactory {
+public class MySQLTableDefinitionSqlFactory extends AbstractActualTableDefinitionSqlFactory {
     
     @Override
     public String getSelectAllSqlText() {

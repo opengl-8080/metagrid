@@ -10,16 +10,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.github.gl8080.metagrid.core.definition.Table;
-import com.github.gl8080.metagrid.core.definition.TableList;
+import com.github.gl8080.metagrid.core.domain.definition.TableDefinition;
+import com.github.gl8080.metagrid.core.domain.definition.TableDefinitionList;
+import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinition;
+import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinition;
 
-public class TableListTest {
+public class TableDefinitionListTest {
     
-    private TableList tableList;
+    private TableDefinitionList tableList;
     
     @Before
     public void setup() {
-        tableList = new TableList();
+        tableList = new TableDefinitionList();
     }
     
     @Test
@@ -34,7 +36,7 @@ public class TableListTest {
     @Test
     public void テーブルを追加したら空ではなくなる() throws Exception {
         // setup
-        Table table = Table.of("hoge").build();
+        TableDefinition table = MetaTableDefinition.of(ActualTableDefinition.of("hoge").build());
         tableList.add(table);
         
         // exercise
@@ -47,12 +49,12 @@ public class TableListTest {
     @Test
     public void 拡張for文で追加したテーブルをイテレートできる() throws Exception {
         // setup
-        tableList.add(Table.of("hoge").build());
-        tableList.add(Table.of("fuga").build());
+        tableList.add(MetaTableDefinition.of(ActualTableDefinition.of("hoge").build()));
+        tableList.add(MetaTableDefinition.of(ActualTableDefinition.of("fuga").build()));
         
         // exercise
         List<String> names = new ArrayList<>();
-        for (Table table : tableList) {
+        for (TableDefinition table : tableList) {
             names.add(table.getPhysicalName());
         }
         
@@ -71,6 +73,4 @@ public class TableListTest {
         // exercise
         tableList.add(null);
     }
-    
-
 }

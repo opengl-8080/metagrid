@@ -1,13 +1,14 @@
-package com.github.gl8080.metagrid.core.definition.actual;
+package com.github.gl8080.metagrid.core.infrastructure.sql;
 
-import com.github.gl8080.metagrid.core.definition.actual.mysql.MySQLSqlFactoryProvider;
-import com.github.gl8080.metagrid.core.definition.actual.oracle.OracleSqlFactoryProvider;
+import com.github.gl8080.metagrid.core.domain.sql.SqlFactoryProvider;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.DatabaseType;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
+import com.github.gl8080.metagrid.core.infrastructure.sql.mysql.MySQLSqlFactoryProvider;
+import com.github.gl8080.metagrid.core.infrastructure.sql.oracle.OracleSqlFactoryProvider;
 
-public abstract class SqlFactoryProvider {
+public class SqlFactoryProviders {
     
-    public static SqlFactoryProvider getProvider() {
+    public static SqlFactoryProvider getSqlFactoryProvider() {
         JdbcHelper jdbc = new JdbcHelper();
         DatabaseType type = jdbc.getDatabaseType();
         
@@ -23,5 +24,5 @@ public abstract class SqlFactoryProvider {
         }
     }
     
-    abstract public TableListSqlFactory getTableListSqlFactory();
+    private SqlFactoryProviders() {}
 }

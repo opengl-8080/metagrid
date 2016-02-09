@@ -1,8 +1,8 @@
-package com.github.gl8080.metagrid.core.definition.actual.oracle;
+package com.github.gl8080.metagrid.core.infrastructure.sql.oracle;
 
-import com.github.gl8080.metagrid.core.definition.actual.TableListSqlFactory;
+import com.github.gl8080.metagrid.core.infrastructure.sql.AbstractActualTableDefinitionSqlFactory;
 
-public class OracleTableListSqlFactory extends TableListSqlFactory {
+public class OracleTableDefinitionSqlFactory extends AbstractActualTableDefinitionSqlFactory {
 
     @Override
     public String getSelectAllSqlText() {

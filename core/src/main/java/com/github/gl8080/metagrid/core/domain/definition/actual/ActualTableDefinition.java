@@ -1,8 +1,8 @@
-package com.github.gl8080.metagrid.core.definition;
+package com.github.gl8080.metagrid.core.domain.definition.actual;
 
 import java.util.Objects;
 
-public class Table {
+public class ActualTableDefinition {
     
     private final String physicalName;
     private String logicalName;
@@ -16,10 +16,10 @@ public class Table {
     
     @Override
     public String toString() {
-        return "Table [physicalName=" + physicalName + ", logicalName=" + logicalName + "]";
+        return "ActualTableDefinition [physicalName=" + physicalName + ", logicalName=" + logicalName + "]";
     }
     
-    private Table(String physicalName) {
+    protected ActualTableDefinition(String physicalName) {
         Objects.requireNonNull(physicalName, "テーブルの物理名に null は指定できません。");
         if (physicalName.isEmpty()) {
             throw new IllegalArgumentException("テーブルの物理名に空文字は指定できません。");
@@ -29,13 +29,13 @@ public class Table {
     
     public static class Builder {
         
-        private Table table;
+        private ActualTableDefinition table;
         
         private Builder(String physicalName) {
-            this.table = new Table(physicalName);
+            this.table = new ActualTableDefinition(physicalName);
         }
         
-        public Table build() {
+        public ActualTableDefinition build() {
             return this.table;
         }
 

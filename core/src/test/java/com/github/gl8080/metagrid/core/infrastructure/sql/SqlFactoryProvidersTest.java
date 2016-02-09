@@ -1,19 +1,20 @@
-package com.github.gl8080.metagrid.core.definition.actual;
+package com.github.gl8080.metagrid.core.infrastructure.sql;
 
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Test;
 
-import com.github.gl8080.metagrid.core.definition.actual.SqlFactoryProvider;
-import com.github.gl8080.metagrid.core.definition.actual.mysql.MySQLSqlFactoryProvider;
-import com.github.gl8080.metagrid.core.definition.actual.oracle.OracleSqlFactoryProvider;
+import com.github.gl8080.metagrid.core.domain.sql.SqlFactoryProvider;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.DatabaseType;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
+import com.github.gl8080.metagrid.core.infrastructure.sql.SqlFactoryProviders;
+import com.github.gl8080.metagrid.core.infrastructure.sql.mysql.MySQLSqlFactoryProvider;
+import com.github.gl8080.metagrid.core.infrastructure.sql.oracle.OracleSqlFactoryProvider;
 
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 
-public class SqlFactoryProviderTest {
+public class SqlFactoryProvidersTest {
 
     @Mocked
     private JdbcHelper jdbc;
@@ -35,7 +36,7 @@ public class SqlFactoryProviderTest {
         }};
         
         // exercise
-        SqlFactoryProvider searchSqlFactory = SqlFactoryProvider.getProvider();
+        SqlFactoryProvider searchSqlFactory = SqlFactoryProviders.getSqlFactoryProvider();
         
         // verify
         assertThat(searchSqlFactory).isInstanceOf(factoryClass);
