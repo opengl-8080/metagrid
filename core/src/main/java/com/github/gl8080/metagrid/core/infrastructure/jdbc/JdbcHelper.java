@@ -3,7 +3,10 @@ package com.github.gl8080.metagrid.core.infrastructure.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import javax.sql.DataSource;
@@ -21,7 +24,6 @@ import com.github.gl8080.metagrid.core.MetaGridException;
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.infrastructure.jndi.JndiHelper;
-import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 public class JdbcHelper {
     private static final Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
@@ -37,52 +39,6 @@ public class JdbcHelper {
         Objects.requireNonNull(config);
         this.config = config;
         this.con = ConnectionHolder.get(this.config);
-    }
-    
-    public int queryInt(String sql) {
-        logger.debug(sql);
-        
-        try (PreparedStatement ps = this.con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();) {
-            
-            rs.next();
-            return rs.getInt(1);
-        } catch (Exception e) {
-            throw new MetaGridException(e);
-        }
-    }
-    
-    public void query(String sql, ThrowableConsumer<ResultSet> consumer) {
-        logger.debug(sql);
-        
-        try (PreparedStatement ps = this.con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();) {
-            
-            while (rs.next()) {
-                consumer.consume(rs);
-            }
-        } catch (Exception e) {
-            throw new MetaGridException(e);
-        }
-    }
-    
-    public int update(String sql, Object[] parameters) {
-        if (logger.isDebugEnabled()) {
-            logger.debug(sql);
-            logger.debug(Arrays.toString(parameters));
-        }
-        
-        try (PreparedStatement ps = this.con.prepareStatement(sql);) {
-            
-            int idx = 0;
-            for (Object parameter : parameters) {
-                ps.setObject(++idx, parameter);
-            }
-            
-            return ps.executeUpdate();
-        } catch (Exception e) {
-            throw new MetaGridException(e);
-        }
     }
     
     public DatabaseType getDatabaseType() {
@@ -129,5 +85,71 @@ public class JdbcHelper {
     
     private UserTransaction getUserTransaction() {
         return new JndiHelper().lookup("java:comp/UserTransaction");
+    }
+
+    public <T> T query(Sql sql, ResultSetConverter<T> converter) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql.getText());) {
+            this.setupParameter(sql, ps);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                return converter.convert(rs);
+            }
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
+
+    public <T> List<T> queryList(Sql sql, ResultSetConverter<T> converter) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql.getText());) {
+            this.setupParameter(sql, ps);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                List<T> list = new ArrayList<>();
+                
+                while (rs.next()) {
+                    list.add(converter.convert(rs));
+                }
+                
+                return list;
+            }
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T querySingle(Sql sql) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql.getText());) {
+            this.setupParameter(sql, ps);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return (T)rs.getObject(1);
+            }
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
+
+    public int update(Sql sql) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql.getText());) {
+            this.setupParameter(sql, ps);
+            
+            return ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new MetaGridException(e);
+        }
+    }
+
+    private void setupParameter(Sql sql, PreparedStatement ps) throws SQLException {
+        int index = 1;
+        for (Object parameter : sql.getParameters()) {
+            ps.setObject(index++, parameter);
+        }
+        
+        if (logger.isDebugEnabled()) {
+            logger.debug("SQL : {}", sql.getText());
+            logger.debug("Parameters : {}", Arrays.toString(sql.getParameters()));
+        }
     }
 }

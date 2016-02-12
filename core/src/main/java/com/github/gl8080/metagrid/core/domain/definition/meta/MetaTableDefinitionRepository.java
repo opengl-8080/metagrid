@@ -6,6 +6,7 @@ import com.github.gl8080.metagrid.core.MetaGridException;
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.Sql;
 
 public class MetaTableDefinitionRepository {
     
@@ -18,11 +19,14 @@ public class MetaTableDefinitionRepository {
         try {
             jdbc.beginTransaction();
             
-            int nextId = jdbc.queryInt("SELECT TABLE_DEFINITION_SEQ.NEXTVAL FROM DUAL");
+            int nextId = jdbc.querySingle(new Sql("SELECT TABLE_DEFINITION_SEQ.NEXTVAL FROM DUAL"));
             
             Object[] parameters = {nextId, def.getPhysicalName(), def.getLogicalName()};
             
-            int cnt = jdbc.update("INSERT INTO TABLE_DEFINITION (ID, PHYSICAL_NAME, LOGICAL_NAME) VALUES (?, ?, ?)", parameters);
+            Sql sql = new Sql("INSERT INTO TABLE_DEFINITION (ID, PHYSICAL_NAME, LOGICAL_NAME) VALUES (?, ?, ?)");
+            sql.setParameters(parameters);
+            
+            int cnt = jdbc.update(sql);
             
             def.setId(nextId);
             
