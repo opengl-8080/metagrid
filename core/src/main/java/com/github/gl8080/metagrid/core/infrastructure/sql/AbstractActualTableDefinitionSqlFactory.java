@@ -6,19 +6,11 @@ import java.sql.SQLException;
 import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinition;
 import com.github.gl8080.metagrid.core.domain.sql.actual.ActualTableDefinitionSqlFactory;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.ResultSetConverter;
-import com.github.gl8080.metagrid.core.infrastructure.jdbc.Sql;
 
 public abstract class AbstractActualTableDefinitionSqlFactory implements ActualTableDefinitionSqlFactory {
 
     protected static final String PHYSICAL_NAME = "PHYSICAL_NAME";
     protected static final String LOGICAL_NAME = "LOGICAL_NAME";
-    
-    @Override
-    public Sql createSelectAllSql() {
-        return new Sql(this.getSelectAllSqlText());
-    }
-    
-    abstract protected String getSelectAllSqlText();
     
     public static class ActualTableDefinitionConverter implements ResultSetConverter<ActualTableDefinition> {
 
