@@ -6,9 +6,6 @@ import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.Objects;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.transaction.HeuristicMixedException;
 import javax.transaction.HeuristicRollbackException;
@@ -23,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.github.gl8080.metagrid.core.MetaGridException;
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
+import com.github.gl8080.metagrid.core.infrastructure.jndi.JndiHelper;
 import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 public class JdbcHelper {
@@ -39,18 +37,6 @@ public class JdbcHelper {
         Objects.requireNonNull(config);
         this.config = config;
         this.con = ConnectionHolder.get(this.config);
-    }
-    
-    public DataSource getDataSource() throws NamingException {
-        Context ctx = new InitialContext();
-        DataSource ds = (DataSource) ctx.lookup(this.config.getJndi());
-        return ds;
-    }
-    
-    private UserTransaction getUserTransaction() throws NamingException {
-        Context ctx = new InitialContext();
-        UserTransaction tx = (UserTransaction) ctx.lookup("java:comp/UserTransaction");
-        return tx;
     }
     
     public int queryInt(String sql) {
@@ -108,10 +94,19 @@ public class JdbcHelper {
         }
     }
     
+    public static DatabaseType getDatabaseType(DataSource ds) {
+        try (Connection con = ds.getConnection()) {
+            String productName = con.getMetaData().getDatabaseProductName();
+            return DatabaseType.of(productName);
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        }
+    }
+    
     public void beginTransaction() {
         try {
             this.getUserTransaction().begin();
-        } catch (NotSupportedException | SystemException | NamingException e) {
+        } catch (NotSupportedException | SystemException e) {
             throw new MetaGridException(e);
         }
     }
@@ -119,7 +114,7 @@ public class JdbcHelper {
     public void commitTransaction() {
         try {
             this.getUserTransaction().commit();
-        } catch (SecurityException | IllegalStateException | RollbackException | HeuristicMixedException | HeuristicRollbackException | SystemException | NamingException e) {
+        } catch (SecurityException | IllegalStateException | RollbackException | HeuristicMixedException | HeuristicRollbackException | SystemException e) {
             throw new MetaGridException(e);
         }
     }
@@ -127,8 +122,12 @@ public class JdbcHelper {
     public void rollbackTransaction() {
         try {
             this.getUserTransaction().rollback();
-        } catch (IllegalStateException | SecurityException | SystemException | NamingException e) {
+        } catch (IllegalStateException | SecurityException | SystemException e) {
             throw new MetaGridException(e);
         }
+    }
+    
+    private UserTransaction getUserTransaction() {
+        return new JndiHelper().lookup("java:comp/UserTransaction");
     }
 }
