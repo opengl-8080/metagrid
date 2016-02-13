@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,8 @@ public class JdbcHelperTest {
         @Mocked
         public ResultSet rs;
         @Mocked
+        public ResultSet generatedKeysRs;
+        @Mocked
         public ResultSetConverter<?> converter;
         @Mocked
         public ResultSetMetaData rsMetaData;
@@ -65,7 +68,9 @@ public class JdbcHelperTest {
                 con.getMetaData().getDatabaseProductName(); result = "Oracle";
                 ds.getConnection(); result = con;
                 con.prepareStatement(SQL_TEST); result = ps;
+                con.prepareStatement(SQL_TEST, Statement.RETURN_GENERATED_KEYS); result = ps;
                 ps.executeQuery(); result = rs;
+                ps.getGeneratedKeys(); result = generatedKeysRs;
                 
                 rs.next(); returns(true, true, false);
             }};
@@ -230,17 +235,21 @@ public class JdbcHelperTest {
         }
         
         @Test
-        public void updateQueryの実行結果がそのままreturnされる() throws Exception {
+        public void 更新件数とDBによって自動生成された情報がreturnされること() throws Exception {
             // setup
             new NonStrictExpectations() {{
                 ps.executeUpdate(); result = 3;
+                ps.getGeneratedKeys(); result = generatedKeysRs;
+                generatedKeysRs.next(); result = true;
+                generatedKeysRs.getLong(1); result = 123L;
             }};
             
             // exercise
-            int actual = helper.update(sql);
+            UpdateResult actual = helper.update(sql);
             
             // verify
-            assertThat(actual).isEqualTo(3);
+            assertThat(actual.getUpdateCount()).as("更新件数").isEqualTo(3);
+            assertThat(actual.getGeneratedId()).as("生成されたID").isEqualTo(123);
         }
         
         @Test

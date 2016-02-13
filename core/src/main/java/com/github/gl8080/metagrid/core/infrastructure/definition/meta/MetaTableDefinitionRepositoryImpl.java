@@ -1,6 +1,7 @@
 package com.github.gl8080.metagrid.core.infrastructure.definition.meta;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -9,8 +10,10 @@ import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinitionRepository;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.DatabaseType;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.Sql;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.UpdateResult;
 import com.github.gl8080.metagrid.core.util.SqlResolver;
 
 public class MetaTableDefinitionRepositoryImpl implements MetaTableDefinitionRepository {
@@ -20,17 +23,28 @@ public class MetaTableDefinitionRepositoryImpl implements MetaTableDefinitionRep
         Objects.requireNonNull(def);
         
         JdbcHelper jdbc = this.getJdbcHelper();
+        int cnt;
         
-        Sql getNextSeqSql = this.resolveSql(jdbc, "getNextSeq");
-        BigDecimal nextId = jdbc.querySingle(getNextSeqSql);
-        int nextIdInt = nextId.intValue();
-        
-        Sql registerSql = this.resolveSql(jdbc, "register");
-        registerSql.setParameters(nextIdInt, def.getPhysicalName(), def.getLogicalName());
-        
-        int cnt = jdbc.update(registerSql);
-        
-        def.setId(nextIdInt);
+        if (jdbc.getDatabaseType().equals(DatabaseType.ORACLE)) {
+            Sql getNextSeqSql = this.resolveSql(jdbc, "getNextSeq");
+            BigDecimal nextId = jdbc.querySingle(getNextSeqSql);
+            int nextIdInt = nextId.intValue();
+            
+            Sql registerSql = this.resolveSql(jdbc, "register");
+            registerSql.setParameters(nextIdInt, def.getPhysicalName(), def.getLogicalName());
+            
+            cnt = jdbc.update(registerSql).getUpdateCount();
+            
+            def.setId(nextIdInt);
+        } else {
+            Sql registerSql = this.resolveSql(jdbc, "register");
+            registerSql.setParameters(def.getPhysicalName(), def.getLogicalName());
+            
+            UpdateResult result = jdbc.update(registerSql);
+            
+            cnt = result.getUpdateCount();
+            def.setId(result.getGeneratedId());
+        }
         
         return cnt;
     }
@@ -41,12 +55,24 @@ public class MetaTableDefinitionRepositoryImpl implements MetaTableDefinitionRep
 
         Sql sql = this.resolveSql(jdbc, "findByPhysicalName");
         sql.setParameters(actualTableDef.getPhysicalName());
-        
-        Map<String, Object> result = jdbc.queryListMap(sql).get(0);
-        
+
         MetaTableDefinition metaTableDefinition = MetaTableDefinition.from(actualTableDef);
-        metaTableDefinition.setId(((BigDecimal)result.get("ID")).longValue());
-        metaTableDefinition.setLogicalName((String)result.get("LOGICAL_NAME"));
+        
+        List<Map<String,Object>> list = jdbc.queryListMap(sql);
+        
+        if (!list.isEmpty()) {
+            Map<String, Object> result = jdbc.queryListMap(sql).get(0);
+
+            Object id = result.get("ID");
+            
+            if (id instanceof BigDecimal) {
+                metaTableDefinition.setId(((BigDecimal)id).longValue());
+            } else if (id instanceof Integer) {
+                metaTableDefinition.setId((Integer)id);
+            }
+            
+            metaTableDefinition.setLogicalName((String)result.get("LOGICAL_NAME"));
+        }
         
         return metaTableDefinition;
     }

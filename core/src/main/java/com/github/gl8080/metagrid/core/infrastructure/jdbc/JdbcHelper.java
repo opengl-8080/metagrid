@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -138,11 +139,22 @@ public class JdbcHelper {
         }
     }
 
-    public int update(Sql sql) {
-        try (PreparedStatement ps = this.con.prepareStatement(sql.getText());) {
+    public UpdateResult update(Sql sql) {
+        try (PreparedStatement ps = this.con.prepareStatement(sql.getText(), Statement.RETURN_GENERATED_KEYS);) {
             this.setupParameter(sql, ps);
             
-            return ps.executeUpdate();
+            int updateCount = ps.executeUpdate();
+            
+            UpdateResult result = new UpdateResult();
+            result.setUpdateCount(updateCount);
+            
+            try (ResultSet generatedKeys = ps.getGeneratedKeys();) {
+                if (generatedKeys.next()) {
+                    result.setGeneratedId(generatedKeys.getLong(1));
+                }
+            }
+            
+            return result;
         } catch (SQLException e) {
             throw new MetaGridException(e);
         }
