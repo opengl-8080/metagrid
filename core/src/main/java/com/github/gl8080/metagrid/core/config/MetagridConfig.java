@@ -31,6 +31,9 @@ public class MetagridConfig {
 
     public static void initialize(InputStream in) {
         instance = JAXB.unmarshal(in, MetagridConfig.class);
+        instance.repository.setName("repository");
+        instance.datasources.get(0).setName("default");
+        
         logger.info("Complete to load configuration file.");
     }
 

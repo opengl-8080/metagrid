@@ -31,7 +31,7 @@ public class ActualTableDefinitionTest {
         }
         
         @Test
-        public void ファクトリメソッドで物理名を指定して_ビルダー軽油でインスタンスを作れる() {
+        public void ファクトリメソッドで物理名を指定して_ビルダー経由でインスタンスを作れる() {
             // exercise
             ActualTableDefinition table = builder.build();
             

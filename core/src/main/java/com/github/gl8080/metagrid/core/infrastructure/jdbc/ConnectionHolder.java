@@ -2,6 +2,9 @@ package com.github.gl8080.metagrid.core.infrastructure.jdbc;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 
 import javax.naming.InitialContext;
@@ -17,34 +20,52 @@ import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 public class ConnectionHolder {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionHolder.class);
     
-    private static final ThreadLocal<Connection> holder = new ThreadLocal<>();
+    private static final ThreadLocal<Map<String, Connection>> holder = new ThreadLocal<>();
     
     public synchronized static Connection get(DataSourceConfig config) {
         Objects.requireNonNull(config);
-        Connection con = holder.get();
+        Map<String, Connection> map = holder.get();
         
-        if (con == null) {
-            con = initConnection(config);
-            holder.set(con);
-            logger.debug(Thread.currentThread().getName() + " : get connection");
+        if (map == null) {
+            map = new HashMap<>();
         }
         
-        return con;
+        String name = config.getName();
+        
+        if (!map.containsKey(name)) {
+            Connection con = initConnection(config);
+            map.put(name, con);
+            holder.set(map);
+            logger.debug("{} : get connection '{}'", Thread.currentThread().getName(), name);
+        }
+        
+        return map.get(name);
     }
     
     public synchronized static void close() {
-        Connection con = holder.get();
+        Map<String, Connection> map = holder.get();
         
-        if (con != null) {
+        if (map == null) {
+            return;
+        }
+        
+        Exception exception = null;
+        
+        for (Entry<String, Connection> entry : map.entrySet()) {
             try {
-                con.close();
-                logger.debug(Thread.currentThread().getName() + " : close connection");
-            } catch (SQLException e) {
-                throw new MetaGridException(e);
+                entry.getValue().close();
+                logger.debug("{} : close connection '{}'", Thread.currentThread().getName(), entry.getKey());
+            } catch (Exception e) {
+                exception = e;
+                logger.error("コネクションのクローズでエラーが発生しました。", e);
             } finally {
                 holder.remove();
-                logger.debug(Thread.currentThread().getName() + " : remove connection");
+                logger.debug("{} : remove connection '{}'", Thread.currentThread().getName(), entry.getKey());
             }
+        }
+        
+        if (exception != null) {
+            throw new MetaGridException(exception);
         }
     }
     

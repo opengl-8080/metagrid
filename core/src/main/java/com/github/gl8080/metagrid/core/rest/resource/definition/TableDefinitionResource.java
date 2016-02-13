@@ -10,7 +10,7 @@ import javax.ws.rs.core.MediaType;
 
 import com.github.gl8080.metagrid.core.domain.definition.TableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.TableDefinitionList;
-import com.github.gl8080.metagrid.core.infrastructure.definition.TableDefinitionRepositoryImpl;
+import com.github.gl8080.metagrid.core.domain.definition.TableDefinitionRepository;
 import com.github.gl8080.metagrid.core.rest.response.MetaGridResponse;
 
 @Path("table")
@@ -19,7 +19,7 @@ public class TableDefinitionResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public MetaGridResponse<List<TableDefinition>> getAllTable() {
-        TableDefinitionRepositoryImpl repo = new TableDefinitionRepositoryImpl();
+        TableDefinitionRepository repo = new TableDefinitionRepository();
         TableDefinitionList tables = repo.findAllTables();
         
         List<TableDefinition> tableList = new ArrayList<>();

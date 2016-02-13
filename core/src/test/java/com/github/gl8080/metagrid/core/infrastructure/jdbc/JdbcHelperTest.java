@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.util.List;
+import java.util.Map;
 
 import javax.sql.DataSource;
 
@@ -15,6 +17,7 @@ import org.junit.runner.RunWith;
 
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
+import com.github.gl8080.metagrid.core.util.Maps;
 
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
 import mockit.Mocked;
@@ -43,6 +46,12 @@ public class JdbcHelperTest {
         public ResultSet rs;
         @Mocked
         public ResultSetConverter<?> converter;
+        @Mocked
+        public ResultSetMetaData rsMetaData;
+        
+        public static final String COLUMN_NAME_1 = "column1";
+        public static final String COLUMN_NAME_2 = "column2";
+        public static final String COLUMN_NAME_3 = "column3";
         
         public JdbcHelper helper;
         public int counter;
@@ -84,6 +93,35 @@ public class JdbcHelperTest {
             
             // verify
             assertThat(databaseType).isEqualTo(DatabaseType.ORACLE);
+        }
+    }
+    
+    public class queryMapメソッド extends Base {
+        
+        @SuppressWarnings("unchecked")
+        @Test
+        public void 指定したSQLを実行して_結果をキーをカラム名にしたMapに詰めて返す() throws Exception {
+            new NonStrictExpectations() {{
+                rs.getMetaData(); result = rsMetaData;
+                rsMetaData.getColumnCount(); result = 3;
+                rsMetaData.getColumnName(1); result = COLUMN_NAME_1;
+                rsMetaData.getColumnName(2); result = COLUMN_NAME_2;
+                rsMetaData.getColumnName(3); result = COLUMN_NAME_3;
+                
+                rs.getObject(COLUMN_NAME_1); returns("hoge", "fuga", "piyo");
+                rs.getObject(COLUMN_NAME_2); returns(true, false, true);
+                rs.getObject(COLUMN_NAME_3); returns(1, 2, 3);
+                
+                rs.next(); returns(true, true, true, false);
+            }};
+            
+            List<Map<String, Object>> result = helper.queryListMap(sql);
+            
+            assertThat(result).containsExactly(
+                Maps.<String, Object>hashMap(COLUMN_NAME_1, "hoge").entry(COLUMN_NAME_2, true).entry(COLUMN_NAME_3, 1),
+                Maps.<String, Object>hashMap(COLUMN_NAME_1, "fuga").entry(COLUMN_NAME_2, false).entry(COLUMN_NAME_3, 2),
+                Maps.<String, Object>hashMap(COLUMN_NAME_1, "piyo").entry(COLUMN_NAME_2, true).entry(COLUMN_NAME_3, 3)
+            );
         }
     }
     

@@ -3,10 +3,13 @@ package com.github.gl8080.metagrid.core.infrastructure.jdbc;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.sql.DataSource;
@@ -92,7 +95,11 @@ public class JdbcHelper {
             this.setupParameter(sql, ps);
             
             try (ResultSet rs = ps.executeQuery()) {
-                return converter.convert(rs);
+                if (rs.next()) {
+                    return converter.convert(rs);
+                } else {
+                    return null;
+                }
             }
         } catch (Exception e) {
             throw new MetaGridException(e);
@@ -148,8 +155,29 @@ public class JdbcHelper {
         }
         
         if (logger.isDebugEnabled()) {
-            logger.debug("SQL : {}", sql.getText());
+            logger.debug("DataSource{name={}, jndi={}}", config.getName(), config.getJndi());
+            logger.debug("SQL : \n{}", sql.getText());
             logger.debug("Parameters : {}", Arrays.toString(sql.getParameters()));
         }
+    }
+
+    public List<Map<String, Object>> queryListMap(Sql sql) {
+        return this.queryList(sql, new ResultSetConverter<Map<String, Object>>() {
+
+            @Override
+            public Map<String, Object> convert(ResultSet rs) throws SQLException {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+                
+                Map<String, Object> map = new HashMap<>();
+                
+                for (int i=0; i<columnCount; i++) {
+                    String columnName = metaData.getColumnName(i + 1);
+                    map.put(columnName, rs.getObject(columnName));
+                }
+                
+                return map;
+            }
+        });
     }
 }

@@ -9,8 +9,13 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinition;
+import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinitionRepository;
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinitionRepository;
+import com.github.gl8080.metagrid.core.exception.ActualTableNotFoundException;
+import com.github.gl8080.metagrid.core.infrastructure.definition.actual.ActualTableDefinitionRepositoryImpl;
+import com.github.gl8080.metagrid.core.infrastructure.definition.meta.MetaTableDefinitionRepositoryImpl;
 import com.github.gl8080.metagrid.core.rest.convert.csv.CsvUploadFile;
 import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
@@ -26,14 +31,19 @@ public class MetaTableDefinitionResource {
             
             @Override
             public void consume(List<String> values) throws Exception {
-//                
-//                MetaTableDefinition def = new MetaTableDefinition();
-//                def.setPhysicalName(values.get(0));
-//                def.setLogicalName(values.get(1));
-//                
-//                MetaTableDefinitionRepository repository = new MetaTableDefinitionRepository();
-//                repository.register(def);
+                ActualTableDefinitionRepository actualRepo = new ActualTableDefinitionRepositoryImpl();
+                String phsicalName = values.get(0);
+                ActualTableDefinition actualTableDefinition = actualRepo.findByPhysicalName(phsicalName);
                 
+                if (actualTableDefinition == null) {
+                    throw new ActualTableNotFoundException(phsicalName);
+                }
+                
+                MetaTableDefinition def = MetaTableDefinition.from(actualTableDefinition);
+                def.setLogicalName(values.get(1));
+                
+                MetaTableDefinitionRepository repository = new MetaTableDefinitionRepositoryImpl();
+                repository.register(def);
             }
         });
         

@@ -1,5 +1,7 @@
 package com.github.gl8080.metagrid.core.domain.definition.meta;
 
+import java.util.Objects;
+
 import com.github.gl8080.metagrid.core.domain.definition.TableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinition;
 
@@ -7,17 +9,17 @@ public class MetaTableDefinition implements TableDefinition {
     
     private Long id;
     private final ActualTableDefinition base;
-    
-    public static MetaTableDefinition of(ActualTableDefinition base) {
-        MetaTableDefinition meta = new MetaTableDefinition(base);
-        return meta;
-    }
+    private String logicalName;
     
     private MetaTableDefinition(ActualTableDefinition base) {
         this.base = base;
     }
     
-    void setId(long id) {
+    public MetaTableDefinition() {
+        this.base = null;
+    }
+
+    public void setId(long id) {
         this.id = id;
     }
     
@@ -32,6 +34,19 @@ public class MetaTableDefinition implements TableDefinition {
 
     @Override
     public String getLogicalName() {
-        return this.base.getLogicalName();
+        if (this.logicalName == null) {
+            return this.base.getLogicalName();
+        } else {
+            return this.logicalName;
+        }
+    }
+
+    public static MetaTableDefinition from(ActualTableDefinition actualDef) {
+        Objects.requireNonNull(actualDef);
+        return new MetaTableDefinition(actualDef);
+    }
+
+    public void setLogicalName(String logicalName) {
+        this.logicalName = logicalName;
     }
 }

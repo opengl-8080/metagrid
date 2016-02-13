@@ -12,8 +12,6 @@ import org.junit.rules.ExpectedException;
 
 import com.github.gl8080.metagrid.core.domain.definition.TableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.TableDefinitionList;
-import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinition;
-import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinition;
 
 public class TableDefinitionListTest {
     
@@ -36,8 +34,7 @@ public class TableDefinitionListTest {
     @Test
     public void テーブルを追加したら空ではなくなる() throws Exception {
         // setup
-        TableDefinition table = MetaTableDefinition.of(ActualTableDefinition.of("hoge").build());
-        tableList.add(table);
+        tableList.add(tableDef("hoge"));
         
         // exercise
         boolean isEmpty = tableList.isEmpty();
@@ -49,8 +46,8 @@ public class TableDefinitionListTest {
     @Test
     public void 拡張for文で追加したテーブルをイテレートできる() throws Exception {
         // setup
-        tableList.add(MetaTableDefinition.of(ActualTableDefinition.of("hoge").build()));
-        tableList.add(MetaTableDefinition.of(ActualTableDefinition.of("fuga").build()));
+        tableList.add(tableDef("hoge"));
+        tableList.add(tableDef("fuga"));
         
         // exercise
         List<String> names = new ArrayList<>();
@@ -72,5 +69,28 @@ public class TableDefinitionListTest {
         
         // exercise
         tableList.add(null);
+    }
+    
+    public static TableDefinition tableDef(String physicalName) {
+        return new DummyTableDefinition(physicalName, null);
+    }
+    
+    public static class DummyTableDefinition implements TableDefinition {
+        private String physicalName;
+        private String logicalName;
+        
+        public DummyTableDefinition(String physicalName, String logicalName) {
+            this.physicalName = physicalName;
+            this.logicalName = logicalName;
+        }
+        
+        @Override
+        public String getPhysicalName() {
+            return physicalName;
+        }
+        @Override
+        public String getLogicalName() {
+            return logicalName;
+        }
     }
 }
