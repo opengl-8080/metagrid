@@ -20,9 +20,19 @@
     <name>java:app/mysql</name>
     <class-name>com.mysql.jdbc.jdbc2.optional.MysqlDataSource</class-name>
     <server-name>localhost</server-name>
-    <database-name>test</database-name>
-    <user>test</user>
-    <password>test</password>
+    <database-name>metagrid_test</database-name>
+    <user>metagrid_test</user>
+    <password>metagrid_test</password>
+    <transactional>true</transactional>
+  </data-source>
+  
+  <data-source>
+    <name>java:app/mysql_metagrid</name>
+    <class-name>com.mysql.jdbc.jdbc2.optional.MysqlDataSource</class-name>
+    <server-name>localhost</server-name>
+    <database-name>metagrid</database-name>
+    <user>metagrid</user>
+    <password>metagrid</password>
     <transactional>true</transactional>
   </data-source>
   
