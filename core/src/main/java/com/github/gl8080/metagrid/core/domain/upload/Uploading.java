@@ -1,5 +1,7 @@
 package com.github.gl8080.metagrid.core.domain.upload;
 
+import java.util.Objects;
+
 public class Uploading {
     
     private UploadFile uploadFile;
@@ -28,5 +30,15 @@ public class Uploading {
     }
     public ErrorFile getErrorFile() {
         return errorFile;
+    }
+
+    public void setRecordCount(RecordCount recordCount) {
+        Objects.requireNonNull(recordCount);
+        this.recordCount = recordCount;
+    }
+
+    public void setUploadFile(UploadFile uploadFile) {
+        Objects.requireNonNull(uploadFile);
+        this.uploadFile = uploadFile;
     }
 }
