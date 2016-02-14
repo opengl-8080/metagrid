@@ -14,9 +14,8 @@ import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefin
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinitionRepository;
 import com.github.gl8080.metagrid.core.exception.ActualTableNotFoundException;
-import com.github.gl8080.metagrid.core.infrastructure.definition.actual.ActualTableDefinitionRepositoryImpl;
-import com.github.gl8080.metagrid.core.infrastructure.definition.meta.MetaTableDefinitionRepositoryImpl;
 import com.github.gl8080.metagrid.core.rest.convert.csv.CsvUploadFile;
+import com.github.gl8080.metagrid.core.util.ComponentLoader;
 import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 @Path("meta-table-definition")
@@ -31,7 +30,7 @@ public class MetaTableDefinitionResource {
             
             @Override
             public void consume(List<String> values) throws Exception {
-                ActualTableDefinitionRepository actualRepo = new ActualTableDefinitionRepositoryImpl();
+                ActualTableDefinitionRepository actualRepo = ComponentLoader.getComponent(ActualTableDefinitionRepository.class);
                 String phsicalName = values.get(0);
                 ActualTableDefinition actualTableDefinition = actualRepo.findByPhysicalName(phsicalName);
                 
@@ -42,7 +41,7 @@ public class MetaTableDefinitionResource {
                 MetaTableDefinition def = MetaTableDefinition.from(actualTableDefinition);
                 def.setLogicalName(values.get(1));
                 
-                MetaTableDefinitionRepository repository = new MetaTableDefinitionRepositoryImpl();
+                MetaTableDefinitionRepository repository = ComponentLoader.getComponent(MetaTableDefinitionRepository.class);
                 repository.register(def);
             }
         });
