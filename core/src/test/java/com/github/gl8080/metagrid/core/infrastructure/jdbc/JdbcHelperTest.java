@@ -99,6 +99,24 @@ public class JdbcHelperTest {
             // verify
             assertThat(databaseType).isEqualTo(DatabaseType.ORACLE);
         }
+        
+        @Test
+        public void 簡潔な方法_一致している場合() {
+            // exercise
+            boolean actual = helper.is(DatabaseType.ORACLE);
+            
+            // verify
+            assertThat(actual).isTrue();
+        }
+        
+        @Test
+        public void 簡潔な方法_一致しない場合() {
+            // exercise
+            boolean actual = helper.is(DatabaseType.MYSQL);
+            
+            // verify
+            assertThat(actual).isFalse();
+        }
     }
     
     public class queryMapメソッド extends Base {

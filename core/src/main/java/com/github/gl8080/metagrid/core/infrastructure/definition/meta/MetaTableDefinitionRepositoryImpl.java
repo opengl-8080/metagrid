@@ -1,9 +1,13 @@
 package com.github.gl8080.metagrid.core.infrastructure.definition.meta;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
@@ -14,39 +18,37 @@ import com.github.gl8080.metagrid.core.infrastructure.jdbc.DatabaseType;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.Sql;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.UpdateResult;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategy;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategyFactory;
 import com.github.gl8080.metagrid.core.util.SqlResolver;
 
 public class MetaTableDefinitionRepositoryImpl implements MetaTableDefinitionRepository {
+    private static final Logger logger = LoggerFactory.getLogger(MetaTableDefinitionRepositoryImpl.class);
 
     @Override
     public int register(MetaTableDefinition def) {
         Objects.requireNonNull(def);
         
         JdbcHelper jdbc = this.getJdbcHelper();
-        int cnt;
+        Long id = null;
+        List<Object> parameters = new ArrayList<>();
         
-        if (jdbc.getDatabaseType().equals(DatabaseType.ORACLE)) {
-            Sql getNextSeqSql = this.resolveSql(jdbc, "getNextSeq");
-            BigDecimal nextId = jdbc.querySingle(getNextSeqSql);
-            int nextIdInt = nextId.intValue();
-            
-            Sql registerSql = this.resolveSql(jdbc, "register");
-            registerSql.setParameters(nextIdInt, def.getPhysicalName(), def.getLogicalName());
-            
-            cnt = jdbc.update(registerSql).getUpdateCount();
-            
-            def.setId(nextIdInt);
-        } else {
-            Sql registerSql = this.resolveSql(jdbc, "register");
-            registerSql.setParameters(def.getPhysicalName(), def.getLogicalName());
-            
-            UpdateResult result = jdbc.update(registerSql);
-            
-            cnt = result.getUpdateCount();
-            def.setId(result.getGeneratedId());
+        if (jdbc.is(DatabaseType.ORACLE)) {
+            GenerateIdStrategy strategy = GenerateIdStrategyFactory.sequence("META_TABLE_DEFINITION_SEQ", jdbc);
+            id = strategy.generate();
+            parameters.add(id);
         }
         
-        return cnt;
+        parameters.add(def.getPhysicalName());
+        parameters.add(def.getLogicalName());
+        
+        Sql registerSql = this.resolveSql(jdbc, "register");
+        registerSql.setParameterList(parameters);
+
+        UpdateResult result = jdbc.update(registerSql);
+        def.setId(id != null ? id : result.getGeneratedId());
+        
+        return result.getUpdateCount();
     }
 
     @Override
@@ -69,6 +71,8 @@ public class MetaTableDefinitionRepositoryImpl implements MetaTableDefinitionRep
                 metaTableDefinition.setId(((BigDecimal)id).longValue());
             } else if (id instanceof Integer) {
                 metaTableDefinition.setId((Integer)id);
+            } else {
+                logger.warn("ID の型が未知の型です。 {}", id.getClass());
             }
             
             metaTableDefinition.setLogicalName((String)result.get("LOGICAL_NAME"));

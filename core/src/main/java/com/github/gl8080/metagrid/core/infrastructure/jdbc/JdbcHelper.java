@@ -44,6 +44,10 @@ public class JdbcHelper {
         this.config = config;
         this.con = ConnectionHolder.get(this.config);
     }
+
+    public boolean is(DatabaseType databaseType) {
+        return this.getDatabaseType().equals(databaseType);
+    }
     
     public DatabaseType getDatabaseType() {
         try {
