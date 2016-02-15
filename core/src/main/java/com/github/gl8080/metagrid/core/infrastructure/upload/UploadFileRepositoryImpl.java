@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.infrastructure.definition.actual;
+package com.github.gl8080.metagrid.core.infrastructure.upload;
 
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;

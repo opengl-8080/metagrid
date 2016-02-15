@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 
 import com.github.gl8080.metagrid.core.domain.upload.RecordCount;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
-import com.github.gl8080.metagrid.core.infrastructure.definition.actual.UploadFileRepositoryImpl;
+import com.github.gl8080.metagrid.core.infrastructure.upload.UploadFileRepositoryImpl;
 
 @Path("meta-table-definition")
 public class MetaTableDefinitionResource {
