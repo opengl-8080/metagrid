@@ -4,10 +4,14 @@ import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.DatabaseType;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.Sql;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.UpdateResult;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.AutoGenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategy;
-import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.OracleSequenceStrategy;
+import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategyFactory;
+import com.github.gl8080.metagrid.core.util.SqlResolver;
 
 public class UploadFileRepositoryImpl implements UploadFileRepository {
 
@@ -17,15 +21,11 @@ public class UploadFileRepositoryImpl implements UploadFileRepository {
         JdbcHelper jdbc = new JdbcHelper(repository);
         
         jdbc.beginTransaction();
-        GenerateIdStrategy strategy = new OracleSequenceStrategy("UPLOAD_FILE_SEQ", jdbc);
-        long id = strategy.generate();
+        GenerateIdStrategy strategy = this.createGenerateIdStrategy(jdbc);
         
-        Sql sql = new Sql("INSERT INTO UPLOAD_FILE (ID, FILE_NAME, CONTENTS, TOTAL_RECORD_COUNT, "
-                + "PROCESSED_RECORD_COUNT, TOTAL_PASSED_TIME, STATUS) VALUES ("
-                + "?, ?, ?, ?, ?, ?, ?)");
+        Sql sql = new SqlResolver().resolve(jdbc.getDatabaseType(), UploadFileRepository.class, "register");
         
         sql.setParameters(
-            id,
             uploadFile.getName(),
             uploadFile.getFile(),
             uploadFile.getRecordCount().getTotalCount(),
@@ -34,10 +34,19 @@ public class UploadFileRepositoryImpl implements UploadFileRepository {
             uploadFile.getStatus().name()
         );
         
-        int updateCount = jdbc.update(sql);
+        UpdateResult updateResult = jdbc.update(sql, strategy);
+        uploadFile.setId(updateResult.getGeneratedId());
         
         jdbc.commitTransaction();
         
-        return updateCount;
+        return updateResult.getUpdateCount();
+    }
+    
+    private GenerateIdStrategy createGenerateIdStrategy(JdbcHelper jdbc) {
+        if (jdbc.is(DatabaseType.ORACLE)) {
+            return GenerateIdStrategyFactory.sequence("UPLOAD_FILE_SEQ", jdbc);
+        } else {
+            return new AutoGenerateIdStrategy();
+        }
     }
 }

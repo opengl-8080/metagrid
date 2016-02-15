@@ -3,6 +3,7 @@ package com.github.gl8080.metagrid.core.infrastructure.jdbc;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class SqlTest {
         sql.setParameters(1, "test", true);
         
         // exercise
-        Object[] parameters = sql.getParameters();
+        List<Object> parameters = sql.getParameterList();
         
         // verify
         assertThat(parameters).containsExactly(1, "test", true);
@@ -52,7 +53,7 @@ public class SqlTest {
         sql.setParameters(new Object[] {1, "test", true});
         
         // exercise
-        Object[] parameters = sql.getParameters();
+        List<Object> parameters = sql.getParameterList();
         
         // verify
         assertThat(parameters).containsExactly(1, "test", true);
@@ -64,7 +65,7 @@ public class SqlTest {
         sql.setParameterList(Arrays.<Object>asList(2, "TEST", false));
         
         // exercise
-        Object[] parameters = sql.getParameters();
+        List<Object> parameters = sql.getParameterList();
         
         // verify
         assertThat(parameters).containsExactly(2, "TEST", false);
@@ -91,10 +92,22 @@ public class SqlTest {
     @Test
     public void 何もパラメータを設定していない場合は_空の配列が返される() {
         // exercise
-        Object[] parameters = sql.getParameters();
+        List<Object> parameters = sql.getParameterList();
         
         // verify
         assertThat(parameters).isEmpty();
+    }
+    
+    @Test
+    public void 先頭にパラメータを追加できる() throws Exception {
+        // setup
+        sql.setParameters("a", "b", "c");
+        
+        // exercise
+        sql.prependParameter("D");
+        
+        // verify
+        assertThat(sql.getParameterList()).containsExactly("D", "a", "b", "c");
     }
     
 }

@@ -5,6 +5,7 @@ import java.util.Objects;
 
 public class UploadFile {
     
+    private Long id;
     private String name;
     private File file;
     private RecordCount recordCount;
@@ -22,7 +23,17 @@ public class UploadFile {
         this.status = Status.WAITING;
         this.errorFile = new ErrorFile();
     }
-    
+
+    public void setId(long id) {
+        this.id = id;
+    }
+    public Long getId() {
+        return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public RecordCount getRecordCount() {
         return recordCount;
     }

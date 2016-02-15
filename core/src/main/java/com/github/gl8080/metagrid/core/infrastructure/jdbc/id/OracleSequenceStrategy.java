@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.Sql;
 
-public class OracleSequenceStrategy implements GenerateIdStrategy {
+public class OracleSequenceStrategy implements SequenceIdStrategy {
     
     private String sequenceName;
     private JdbcHelper jdbc;
