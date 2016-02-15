@@ -16,7 +16,8 @@ import javax.ws.rs.core.Response;
 
 import com.github.gl8080.metagrid.core.domain.upload.RecordCount;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
-import com.github.gl8080.metagrid.core.infrastructure.upload.UploadFileRepositoryImpl;
+import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
+import com.github.gl8080.metagrid.core.util.ComponentLoader;
 
 @Path("meta-table-definition")
 public class MetaTableDefinitionResource {
@@ -27,7 +28,7 @@ public class MetaTableDefinitionResource {
 
         File tmp = File.createTempFile("meta_table_def_", ".csv");
         
-        UploadFile uploading = new UploadFile(fileName, tmp);
+        UploadFile uploadFile = new UploadFile(fileName, tmp);
         
         try {
             Files.copy(in, tmp.toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -40,10 +41,10 @@ public class MetaTableDefinitionResource {
                 }
                 
                 RecordCount recordCount = new RecordCount(totalCount);
-                uploading.setRecordCount(recordCount);
+                uploadFile.setRecordCount(recordCount);
             }
             
-            new UploadFileRepositoryImpl().register(uploading);
+            ComponentLoader.getComponent(UploadFileRepository.class).register(uploadFile);
         } finally {
             tmp.delete();
             System.out.println("delete file");
