@@ -111,6 +111,39 @@ public class MetagridConfigTest {
             
             assertThat(datasource.getJndi()).isEqualTo("fizz:bazz/datasource");
         }
+
+        @Test
+        public void 非同期タスクの同時実行数を指定できる() {
+            // setup
+            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                       + "<metagrid>"
+                       + "  <asyncTask max=\"4\" />"
+                       + "</metagrid>";
+            
+            // exercise
+            MetagridConfig config = loadConfig(xml);
+            
+            // verify
+            AsyncTask asyncTask = config.getAsyncTask();
+            
+            assertThat(asyncTask.getMax()).isEqualTo(4);
+        }
+
+        @Test
+        public void 非同期タスクの同時実行数が指定されていない場合は_デフォルトで5() {
+            // setup
+            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                       + "<metagrid>"
+                       + "</metagrid>";
+            
+            // exercise
+            MetagridConfig config = loadConfig(xml);
+            
+            // verify
+            AsyncTask asyncTask = config.getAsyncTask();
+            
+            assertThat(asyncTask.getMax()).isEqualTo(5);
+        }
     }
     
     private MetagridConfig loadConfig(String xml) {

@@ -53,6 +53,9 @@ public class MetagridConfig {
     
     @XmlElement(name="repository")
     private DataSourceConfig repository;
+    
+    @XmlElement(name="asyncTask")
+    private AsyncTask asyncTask = new AsyncTask();
 
     public List<DataSourceConfig> getDataSources() {
         return this.datasources;
@@ -64,5 +67,9 @@ public class MetagridConfig {
 
     public DataSourceConfig getRepositoryDataSource() {
         return this.repository;
+    }
+
+    public AsyncTask getAsyncTask() {
+        return this.asyncTask;
     }
 }
