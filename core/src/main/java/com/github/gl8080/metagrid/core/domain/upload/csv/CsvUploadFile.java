@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.rest.convert.csv;
+package com.github.gl8080.metagrid.core.domain.upload.csv;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

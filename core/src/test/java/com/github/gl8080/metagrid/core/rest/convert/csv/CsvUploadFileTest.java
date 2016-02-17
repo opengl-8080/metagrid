@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.github.gl8080.metagrid.core.rest.convert.csv.CsvUploadFile;
+import com.github.gl8080.metagrid.core.domain.upload.csv.CsvUploadFile;
 import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 @SuppressWarnings("unchecked")

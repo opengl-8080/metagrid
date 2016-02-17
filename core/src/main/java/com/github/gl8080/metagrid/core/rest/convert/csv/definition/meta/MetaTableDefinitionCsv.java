@@ -1,6 +1,6 @@
 package com.github.gl8080.metagrid.core.rest.convert.csv.definition.meta;
 
-import com.github.gl8080.metagrid.core.rest.convert.csv.CsvFormatException;
+import com.github.gl8080.metagrid.core.domain.upload.csv.CsvFormatException;
 
 public class MetaTableDefinitionCsv {
     

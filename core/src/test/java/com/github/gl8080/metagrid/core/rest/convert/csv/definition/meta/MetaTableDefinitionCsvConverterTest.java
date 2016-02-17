@@ -10,7 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.github.gl8080.metagrid.core.rest.convert.csv.CsvFormatException;
+import com.github.gl8080.metagrid.core.domain.upload.csv.CsvFormatException;
 import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 import mockit.Mocked;
