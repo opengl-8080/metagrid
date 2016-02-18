@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.rest.convert.csv;
+package com.github.gl8080.metagrid.core.domain.upload.csv;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -135,12 +135,12 @@ public class CsvUploadFileTest {
         return createWithCharset("UTF-8", csv);
     }
     
-    private static class TestProcessor implements ThrowableConsumer<List<String>> {
+    private static class TestProcessor implements CsvRecordProcessor<List<String>> {
         
         private List<List<String>> actual = new ArrayList<>();
         
         @Override
-        public void consume(List<String> elements) throws Exception {
+        public void process(List<String> elements) {
             this.actual.add(elements);
         }
         

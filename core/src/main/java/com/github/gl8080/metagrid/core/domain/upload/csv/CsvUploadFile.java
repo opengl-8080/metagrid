@@ -12,7 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.github.gl8080.metagrid.core.MetaGridException;
-import com.github.gl8080.metagrid.core.util.ThrowableConsumer;
 
 public class CsvUploadFile {
     private static final Pattern SEPARATOR_PATTERN = Pattern.compile(",(?=(([^\"]*\"){2})*[^\"]*$)");
@@ -26,11 +25,11 @@ public class CsvUploadFile {
         this.in = in;
     }
 
-    public void each(ThrowableConsumer<List<String>> processor) {
+    public void each(CsvRecordProcessor<List<String>> processor) {
         this.each(StandardCharsets.UTF_8, processor);
     }
 
-    public void each(Charset charset, ThrowableConsumer<List<String>> processor) {
+    public void each(Charset charset, CsvRecordProcessor<List<String>> processor) {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(this.in, charset))) {
             String line = null;
             
@@ -48,7 +47,7 @@ public class CsvUploadFile {
                     list.add(element);
                 }
                 
-                processor.consume(list);
+                processor.process(list);
             }
         } catch (Exception e) {
             throw new MetaGridException(e);
