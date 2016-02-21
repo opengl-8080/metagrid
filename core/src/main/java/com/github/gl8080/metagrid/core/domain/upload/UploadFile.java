@@ -1,7 +1,14 @@
 package com.github.gl8080.metagrid.core.domain.upload;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Objects;
+
+import com.github.gl8080.metagrid.core.MetaGridException;
 
 public class UploadFile {
     
@@ -12,6 +19,7 @@ public class UploadFile {
     private PassedTime processingTime;
     private Status status;
     private ErrorFile errorFile;
+    private Charset charset = StandardCharsets.UTF_8;
     
     public UploadFile(String name, File file) {
         Objects.requireNonNull(name);
@@ -56,5 +64,21 @@ public class UploadFile {
     public void setRecordCount(RecordCount recordCount) {
         Objects.requireNonNull(recordCount);
         this.recordCount = recordCount;
+    }
+
+    public void eachLine(FileLineProcessor processor) {
+        try (BufferedReader br = Files.newBufferedReader(this.file.toPath(), this.charset)) {
+            String line = null;
+            
+            while ((line = br.readLine()) != null) {
+                processor.process(line);
+            }
+        } catch (IOException e) {
+            throw new MetaGridException(e);
+        }
+    }
+
+    public void setCharset(Charset charset) {
+        this.charset = charset;
     }
 }

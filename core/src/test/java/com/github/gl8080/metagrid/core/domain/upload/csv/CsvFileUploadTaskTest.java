@@ -1,8 +1,9 @@
 package com.github.gl8080.metagrid.core.domain.upload.csv;
 
-import java.util.List;
-
 import org.junit.Test;
+
+import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
+import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 
 import mockit.Mocked;
 import mockit.Verifications;
@@ -10,9 +11,9 @@ import mockit.Verifications;
 public class CsvFileUploadTaskTest {
     
     @Mocked
-    private CsvRecordProcessor<List<String>> processor;
+    private FileLineProcessor processor;
     @Mocked
-    private CsvUploadFile csv;
+    private UploadFile csv;
     
     @Test
     public void csvファイルの繰り返しメソッドにプロセッサが渡されること() throws Exception {
@@ -24,7 +25,7 @@ public class CsvFileUploadTaskTest {
         
         // verify
         new Verifications() {{
-            csv.each(processor); times = 1;
+            csv.eachLine(processor); times = 1;
         }};
     }
 }

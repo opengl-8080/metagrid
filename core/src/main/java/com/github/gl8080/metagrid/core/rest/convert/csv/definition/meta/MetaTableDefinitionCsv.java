@@ -9,7 +9,6 @@ public class MetaTableDefinitionCsv {
     
     public void validate() {
         if (this.physicalName == null || this.physicalName.isEmpty()) {
-            throw new CsvFormatException("物理名が空です。");
         }
     }
     

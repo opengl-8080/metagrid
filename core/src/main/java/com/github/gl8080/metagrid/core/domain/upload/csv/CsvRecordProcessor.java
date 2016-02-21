@@ -1,6 +1,8 @@
 package com.github.gl8080.metagrid.core.domain.upload.csv;
 
-public interface CsvRecordProcessor<T> {
+import java.util.List;
+
+public interface CsvRecordProcessor {
     
-    void process(T record);
+    void process(List<String> record);
 }

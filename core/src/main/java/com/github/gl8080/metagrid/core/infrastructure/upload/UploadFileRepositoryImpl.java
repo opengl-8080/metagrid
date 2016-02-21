@@ -49,4 +49,10 @@ public class UploadFileRepositoryImpl implements UploadFileRepository {
             return new AutoGenerateIdStrategy();
         }
     }
+
+    @Override
+    public int update(UploadFile uploadFile) {
+        // TODO 自動生成されたメソッド・スタブ
+        return 0;
+    }
 }
