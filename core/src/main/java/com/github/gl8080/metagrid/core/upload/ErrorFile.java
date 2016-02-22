@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.domain.upload;
+package com.github.gl8080.metagrid.core.upload;
 
 import java.util.ArrayList;
 import java.util.Iterator;

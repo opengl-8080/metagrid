@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.domain.upload.csv;
+package com.github.gl8080.metagrid.core.upload.csv;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
+import com.github.gl8080.metagrid.core.upload.FileLineProcessor;
 
 public class CsvRecordParser implements FileLineProcessor {
     private static final Pattern SEPARATOR_PATTERN = Pattern.compile(",(?=(([^\"]*\"){2})*[^\"]*$)");

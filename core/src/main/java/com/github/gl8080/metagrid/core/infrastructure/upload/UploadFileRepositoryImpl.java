@@ -2,8 +2,6 @@ package com.github.gl8080.metagrid.core.infrastructure.upload;
 
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
-import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
-import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.DatabaseType;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.Sql;
@@ -11,6 +9,8 @@ import com.github.gl8080.metagrid.core.infrastructure.jdbc.UpdateResult;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.AutoGenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategyFactory;
+import com.github.gl8080.metagrid.core.upload.UploadFile;
+import com.github.gl8080.metagrid.core.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.util.SqlResolver;
 
 public class UploadFileRepositoryImpl implements UploadFileRepository {

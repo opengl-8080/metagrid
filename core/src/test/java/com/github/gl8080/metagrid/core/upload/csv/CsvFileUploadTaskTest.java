@@ -1,9 +1,10 @@
-package com.github.gl8080.metagrid.core.domain.upload.csv;
+package com.github.gl8080.metagrid.core.upload.csv;
 
 import org.junit.Test;
 
-import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
-import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
+import com.github.gl8080.metagrid.core.upload.FileLineProcessor;
+import com.github.gl8080.metagrid.core.upload.UploadFile;
+import com.github.gl8080.metagrid.core.upload.csv.CsvFileUploadTask;
 
 import mockit.Mocked;
 import mockit.Verifications;
