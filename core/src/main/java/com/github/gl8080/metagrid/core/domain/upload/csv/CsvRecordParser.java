@@ -13,9 +13,9 @@ public class CsvRecordParser implements FileLineProcessor {
     private static final Pattern WRAP_PATTERN = Pattern.compile("^\"|\"$");
     private static final Pattern ESCAPED_WRAP_PATTERN = Pattern.compile("\"\"");
     
-    private CsvRecordProcessor processor;
+    private CsvRecordProcessor<List<String>> processor;
     
-    public CsvRecordParser(CsvRecordProcessor processor) {
+    public CsvRecordParser(CsvRecordProcessor<List<String>> processor) {
         Objects.requireNonNull(processor);
         this.processor = processor;
     }

@@ -64,7 +64,7 @@ public class CsvRecordParserTest {
         processor.assertContains("a,bc", "def");
     }
 
-    private static class TestProcessor implements CsvRecordProcessor {
+    private static class TestProcessor implements CsvRecordProcessor<List<String>> {
         
         private List<String> actual;
         
