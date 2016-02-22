@@ -1,10 +1,10 @@
-package com.github.gl8080.metagrid.core.upload.csv;
+package com.github.gl8080.metagrid.core.domain.upload.csv;
 
 import java.util.Objects;
 
+import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
+import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.infrastructure.task.Task;
-import com.github.gl8080.metagrid.core.upload.FileLineProcessor;
-import com.github.gl8080.metagrid.core.upload.UploadFile;
 
 public class CsvFileUploadTask implements Task {
     private UploadFile csv;

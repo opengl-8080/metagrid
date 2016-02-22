@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.upload.csv;
+package com.github.gl8080.metagrid.core.domain.upload.csv;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -6,9 +6,6 @@ import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.github.gl8080.metagrid.core.upload.csv.CsvRecordParser;
-import com.github.gl8080.metagrid.core.upload.csv.CsvRecordProcessor;
 
 public class CsvRecordParserTest {
     

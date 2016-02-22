@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.upload;
+package com.github.gl8080.metagrid.core.domain.upload;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -15,10 +15,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-
-import com.github.gl8080.metagrid.core.upload.FileLineProcessor;
-import com.github.gl8080.metagrid.core.upload.Status;
-import com.github.gl8080.metagrid.core.upload.UploadFile;
 
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
 

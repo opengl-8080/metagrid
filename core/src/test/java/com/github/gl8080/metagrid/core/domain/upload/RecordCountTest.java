@@ -1,11 +1,9 @@
-package com.github.gl8080.metagrid.core.upload;
+package com.github.gl8080.metagrid.core.domain.upload;
 
 import static org.assertj.core.api.Assertions.*;
 
 import org.junit.Before;
 import org.junit.Test;
-
-import com.github.gl8080.metagrid.core.upload.RecordCount;
 
 public class RecordCountTest {
 

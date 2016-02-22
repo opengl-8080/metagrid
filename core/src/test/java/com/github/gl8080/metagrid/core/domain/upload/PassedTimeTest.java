@@ -1,4 +1,4 @@
-package com.github.gl8080.metagrid.core.upload;
+package com.github.gl8080.metagrid.core.domain.upload;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -7,7 +7,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import com.github.gl8080.metagrid.core.upload.PassedTime;
 import com.github.gl8080.metagrid.core.util.StopWatch;
 
 import mockit.Mocked;
