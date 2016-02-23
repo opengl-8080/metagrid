@@ -18,12 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import javax.sql.DataSource;
-import javax.transaction.HeuristicMixedException;
-import javax.transaction.HeuristicRollbackException;
-import javax.transaction.NotSupportedException;
-import javax.transaction.RollbackException;
-import javax.transaction.SystemException;
-import javax.transaction.UserTransaction;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,13 +28,13 @@ import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.AutoGenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.SequenceIdStrategy;
-import com.github.gl8080.metagrid.core.infrastructure.jndi.JndiHelper;
 
 public class JdbcHelper {
     private static final Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
     
     private final DataSourceConfig config;
     private final Connection con;
+    private boolean inTransaction;
     
     public JdbcHelper() {
         this(MetagridConfig.getInstance().getDefaultDataSource());
@@ -75,31 +69,42 @@ public class JdbcHelper {
     }
     
     public void beginTransaction() {
+        if (this.inTransaction) {
+            return;
+        }
+        
         try {
-            this.getUserTransaction().begin();
-        } catch (NotSupportedException | SystemException e) {
+            this.con.setAutoCommit(false);
+            this.inTransaction = true;
+        } catch (SQLException e) {
             throw new MetaGridException(e);
         }
     }
     
     public void commitTransaction() {
+        if (!this.inTransaction) {
+            return;
+        }
+        
         try {
-            this.getUserTransaction().commit();
-        } catch (SecurityException | IllegalStateException | RollbackException | HeuristicMixedException | HeuristicRollbackException | SystemException e) {
+            this.con.commit();
+            this.inTransaction = false;
+        } catch (SQLException e) {
             throw new MetaGridException(e);
         }
     }
     
     public void rollbackTransaction() {
+        if (!this.inTransaction) {
+            return;
+        }
+        
         try {
-            this.getUserTransaction().rollback();
-        } catch (IllegalStateException | SecurityException | SystemException e) {
+            this.con.rollback();
+            this.inTransaction = false;
+        } catch (SQLException e) {
             throw new MetaGridException(e);
         }
-    }
-    
-    private UserTransaction getUserTransaction() {
-        return new JndiHelper().lookup("java:comp/UserTransaction");
     }
 
     public <T> T query(Sql sql, ResultSetConverter<T> converter) {

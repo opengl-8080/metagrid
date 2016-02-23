@@ -1,6 +1,7 @@
 package com.github.gl8080.metagrid.core.infrastructure.jdbc;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.Assert.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -27,6 +28,7 @@ import de.bechte.junit.runners.context.HierarchicalContextRunner;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Verifications;
+import mockit.internal.expectations.TestOnlyPhase;
 
 @RunWith(HierarchicalContextRunner.class)
 public class JdbcHelperTest {
@@ -66,7 +68,7 @@ public class JdbcHelperTest {
         public Sql sql;
         
         @Before
-        public void setup() throws Exception {
+        public void _setup() throws Exception {
             new NonStrictExpectations() {{
                 MetagridConfig.getInstance().getDefaultDataSource(); result = dsConfig;
                 ConnectionHolder.get(dsConfig); result = con;
@@ -80,6 +82,170 @@ public class JdbcHelperTest {
             
             helper = new JdbcHelper();
             sql = new Sql(SQL_TEST);
+        }
+    }
+    
+    public class トランザクション制御メソッド {
+        
+        public class トランザクションが開始されている場合 extends Base {
+            
+            @Before
+            public void setup() {
+                helper.beginTransaction();
+            }
+            
+            @Test
+            public void トランザクションを開始させようとしても何も実行されない() throws Exception {
+                // exercise
+                helper.beginTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.setAutoCommit(false); times = 1; // before で一回実行している分だけ
+                }};
+            }
+            
+            @Test
+            public void ロールバックは実行できること() throws Exception {
+                // exercise
+                helper.rollbackTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.rollback(); times = 1;
+                }};
+            }
+            
+            @Test
+            public void コミットは実行できること() throws Exception {
+                // exercise
+                helper.commitTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.commit(); times = 1;
+                }};
+            }
+        }
+        
+        public class トランザクションが開始されていない場合 extends Base {
+            
+            @Test
+            public void トランザクションを開始できる() throws Exception {
+                // exercise
+                helper.beginTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.setAutoCommit(false); times = 1;
+                }};
+            }
+            
+            @Test
+            public void ロールバックは実行されない() throws Exception {
+                // exercise
+                helper.rollbackTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.rollback(); times = 0;
+                }};
+            }
+            
+            @Test
+            public void コミットは実行されない() throws Exception {
+                // exercise
+                helper.commitTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.commit(); times = 0;
+                }};
+            }
+        }
+        
+        public class 一度トランザクションがコミットで終了している場合 extends Base {
+            
+            @Before
+            public void setup() {
+                helper.beginTransaction();
+                helper.commitTransaction();
+            }
+            
+            @Test
+            public void トランザクションを開始できる() throws Exception {
+                // exercise
+                helper.beginTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.setAutoCommit(false); times = 2;
+                }};
+            }
+            
+            @Test
+            public void ロールバックは実行されない() throws Exception {
+                // exercise
+                helper.rollbackTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.rollback(); times = 0;
+                }};
+            }
+            
+            @Test
+            public void コミットは実行されない() throws Exception {
+                // exercise
+                helper.commitTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.commit(); times = 1;
+                }};
+            }
+        }
+        
+        public class 一度トランザクションがロールバックで終了している場合 extends Base {
+            
+            @Before
+            public void setup() {
+                helper.beginTransaction();
+                helper.rollbackTransaction();
+            }
+            
+            @Test
+            public void トランザクションを開始できる() throws Exception {
+                // exercise
+                helper.beginTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.setAutoCommit(false); times = 2;
+                }};
+            }
+            
+            @Test
+            public void ロールバックは実行されない() throws Exception {
+                // exercise
+                helper.rollbackTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.rollback(); times = 1;
+                }};
+            }
+            
+            @Test
+            public void コミットは実行されない() throws Exception {
+                // exercise
+                helper.commitTransaction();
+                
+                // verify
+                new Verifications() {{
+                    con.commit(); times = 0;
+                }};
+            }
         }
     }
     
