@@ -1,7 +1,6 @@
 package com.github.gl8080.metagrid.core.infrastructure.jdbc;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -28,7 +27,6 @@ import de.bechte.junit.runners.context.HierarchicalContextRunner;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Verifications;
-import mockit.internal.expectations.TestOnlyPhase;
 
 @RunWith(HierarchicalContextRunner.class)
 public class JdbcHelperTest {
