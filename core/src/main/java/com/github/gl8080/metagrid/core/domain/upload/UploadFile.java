@@ -81,4 +81,9 @@ public class UploadFile {
     public void setCharset(Charset charset) {
         this.charset = charset;
     }
+
+    public void setStatus(Status status) {
+        Objects.requireNonNull(status);
+        this.status = status;
+    }
 }

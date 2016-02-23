@@ -162,7 +162,7 @@ public class JdbcHelperTest {
             }
         }
         
-        public class 一度トランザクションがコミットで終了している場合 extends Base {
+        public class 一度コミットで終了している場合 extends Base {
             
             @Before
             public void setup() {
@@ -204,7 +204,7 @@ public class JdbcHelperTest {
             }
         }
         
-        public class 一度トランザクションがロールバックで終了している場合 extends Base {
+        public class 一度ロールバックで終了している場合 extends Base {
             
             @Before
             public void setup() {

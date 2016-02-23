@@ -35,6 +35,10 @@ public class JdbcHelper {
     private final DataSourceConfig config;
     private final Connection con;
     private boolean inTransaction;
+
+    public static JdbcHelper getRepositoryHelper() {
+        return new JdbcHelper(MetagridConfig.getInstance().getRepositoryDataSource());
+    }
     
     public JdbcHelper() {
         this(MetagridConfig.getInstance().getDefaultDataSource());
