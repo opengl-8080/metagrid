@@ -40,7 +40,7 @@ public class MetagridConfig {
             instance.datasources.get(0).setName("default");
         }
         
-        logger.info("Complete to load configuration file.");
+        logger.info("設定ファイルを読み込みました。");
     }
 
     public static MetagridConfig getInstance() {
