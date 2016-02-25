@@ -1,5 +1,6 @@
 package com.github.gl8080.metagrid.core.application.upload;
 
+import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
 import com.github.gl8080.metagrid.core.domain.upload.Status;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
@@ -21,6 +22,10 @@ public class CsvFileUploadProcessor implements FileLineProcessor {
 
     @Override
     public void process(String line) {
+        UploadFileRepository uploadFileRepository = ComponentLoader.getComponent(UploadFileRepository.class);
+        JdbcHelper repository = JdbcHelper.getRepositoryHelper();
+        ErrorRecord errorRecord = null;
+        
         try {
             this.uploadFile.setStatus(Status.PROCESSING);
             this.uploadFile.getProcessingTime().begin();
@@ -28,20 +33,23 @@ public class CsvFileUploadProcessor implements FileLineProcessor {
             this.targetJdbc.beginTransaction();
             this.delegate.process(line);
             this.targetJdbc.commitTransaction();
-            
         } catch (Exception e) {
             this.uploadFile.setStatus(Status.ERROR_END);
             this.targetJdbc.rollbackTransaction();
+            
+            errorRecord = new ErrorRecord(line);
+            
             throw e;
         } finally {
             this.uploadFile.getProcessingTime().end();
             this.uploadFile.getRecordCount().increment();
             
-            UploadFileRepository uploadFileRepository = ComponentLoader.getComponent(UploadFileRepository.class);
-            
-            JdbcHelper repository = JdbcHelper.getRepositoryHelper();
             repository.beginTransaction();
-            uploadFileRepository.update(this.uploadFile);
+            if (errorRecord == null) {
+                uploadFileRepository.update(uploadFile);
+            } else {
+                uploadFileRepository.addErrorRecord(uploadFile, errorRecord);
+            }
             repository.commitTransaction();
         }
     }

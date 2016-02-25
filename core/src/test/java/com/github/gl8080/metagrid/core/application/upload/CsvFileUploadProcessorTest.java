@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
 import com.github.gl8080.metagrid.core.domain.upload.RecordCount;
 import com.github.gl8080.metagrid.core.domain.upload.Status;
@@ -90,10 +91,26 @@ public class CsvFileUploadProcessorTest {
                 } catch (Exception e) {/*ignore*/}
                 
                 // verify
-                new Verifications() {{
+                new VerificationsInOrder() {{
                     repository.beginTransaction();
-                    uploadFileRepository.update(uploadFile);
+                    uploadFileRepository.addErrorRecord(uploadFile, (ErrorRecord)any);
                     repository.commitTransaction();
+                }};
+            }
+            
+            @Test
+            public void エラーコードには生の行データが登録されていること() throws Exception {
+                // exercise
+                try {
+                    processor.process("test");
+                } catch (Exception e) {/*ignore*/}
+                
+                // verify
+                new Verifications() {{
+                    ErrorRecord errorRecord;
+                    uploadFileRepository.addErrorRecord(uploadFile, errorRecord = withCapture());
+                    
+                    assertThat(errorRecord.getContents()).isEqualTo("test");
                 }};
             }
             

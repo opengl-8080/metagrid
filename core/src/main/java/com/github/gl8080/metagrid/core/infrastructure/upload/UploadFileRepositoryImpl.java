@@ -2,6 +2,7 @@ package com.github.gl8080.metagrid.core.infrastructure.upload;
 
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
+import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.DatabaseType;
@@ -52,6 +53,12 @@ public class UploadFileRepositoryImpl implements UploadFileRepository {
 
     @Override
     public int update(UploadFile uploadFile) {
+        // TODO 自動生成されたメソッド・スタブ
+        return 0;
+    }
+
+    @Override
+    public int addErrorRecord(UploadFile uploadFile, ErrorRecord errorRecord) {
         // TODO 自動生成されたメソッド・スタブ
         return 0;
     }
