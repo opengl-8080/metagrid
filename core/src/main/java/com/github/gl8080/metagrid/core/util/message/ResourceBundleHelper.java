@@ -1,6 +1,7 @@
 package com.github.gl8080.metagrid.core.util.message;
 
 import java.text.MessageFormat;
+import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
@@ -27,38 +28,56 @@ public class ResourceBundleHelper {
         return instance;
     }
     
-    private ResourceBundle defaultBundle;
-    private ResourceBundle customBundle;
-    
+    private Locale locale;
+    private String defaultBundleBase;
+    private String customBundleBase;
+
     public ResourceBundleHelper(String base) {
-        this(base, null);
+        this(Locale.getDefault(), base);
+    }
+    
+    public ResourceBundleHelper(Locale locale, String base) {
+        this(locale, base, null);
     }
 
-    public ResourceBundleHelper(String defaultBase, String customBase) {
-        this.defaultBundle = ResourceBundle.getBundle(defaultBase);
-        
-        if (customBase != null) {
-            this.customBundle = ResourceBundle.getBundle(customBase);
-        }
+    public ResourceBundleHelper(String defaultBundle, String customBundle) {
+        this(Locale.getDefault(), defaultBundle, customBundle);
     }
 
-    public String getMessage(MessageCode messageCode, Object... parameters) {
-        String raw;
+    public ResourceBundleHelper(Locale locale, String defaultBundle, String customBundle) {
+        this.locale = locale;
+        this.defaultBundleBase = defaultBundle;
+        this.customBundleBase = customBundle;
+    }
+
+    public String getMessage(MessageCode messageCode, Object... arguments) {
+        return this.getMessage(this.locale, messageCode, arguments);
+    }
+
+    public String getMessage(Locale locale, MessageCode messageCode, Object... arguments) {
+        String raw = this.getMessage(locale, messageCode);
         
-        if (this.customBundle == null) {
-            raw = this.defaultBundle.getString(messageCode.getKey());
-        } else {
-            try {
-                raw = this.customBundle.getString(messageCode.getKey());
-            } catch (MissingResourceException e) {
-                raw = this.defaultBundle.getString(messageCode.getKey());
-            }
-        }
-        
-        if (parameters == null || parameters.length == 0) {
+        if (arguments.length == 0) {
             return raw;
         } else {
-            return MessageFormat.format(raw, parameters);
+            return MessageFormat.format(raw, arguments);
         }
+    }
+    
+    private String getMessage(Locale locale, MessageCode messageCode) {
+        if (this.customBundleBase == null) {
+            return this.getMessage(this.defaultBundleBase, messageCode, locale);
+        }
+        
+        try {
+            return this.getMessage(this.customBundleBase, messageCode, locale);
+        } catch (MissingResourceException e) {
+            return this.getMessage(this.defaultBundleBase, messageCode, locale);
+        }
+    }
+    
+    private String getMessage(String base, MessageCode messageCode, Locale locale) {
+        ResourceBundle bundle = ResourceBundle.getBundle(base, locale);
+        return bundle.getString(messageCode.getKey());
     }
 }

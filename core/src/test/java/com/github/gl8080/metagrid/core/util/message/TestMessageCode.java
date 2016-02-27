@@ -2,10 +2,12 @@ package com.github.gl8080.metagrid.core.util.message;
 
 public enum TestMessageCode implements MessageCode {
     TEST_MESSAGE("test.message"),
-    BIND_PARAMETER("bind.parameter"),
-    ONLY_DEFAULT("test.only.default"),
-    ONLY_CUSTOM("test.only.custom"),
-    DUPLICATE_DEFINED("test.duplicate.defined")
+    CUSTOM_MESSAGE("test.custom.message"),
+    DEFAULT_MESSAGE("test.default.message"),
+    CUSTOM_ONLY_MESSAGE("test.custom.only.message"),
+    DEFAULT_ONLY_MESSAGE("test.default.only.message"),
+    DUPLICATED_MESSAGE("test.duplicated.message"),
+    BIND_PARAMETER("bind.parameter")
     ;
 
     private final String key;
