@@ -26,46 +26,66 @@ public class FileUploadProcessor implements FileLineProcessor {
 
     @Override
     public void process(String line) {
-        UploadFileRepository uploadFileRepository = ComponentLoader.getComponent(UploadFileRepository.class);
-        JdbcHelper repository = JdbcHelper.getRepositoryHelper();
         ErrorRecord errorRecord = null;
-        
+
         try {
-            this.uploadFile.setStatus(Status.PROCESSING);
-            this.uploadFile.getProcessingTime().begin();
+            this.begin();
             
             this.targetJdbc.beginTransaction();
             this.delegate.process(line);
             this.targetJdbc.commitTransaction();
         } catch (FileUploadProcessException e) {
-            this.uploadFile.setStatus(Status.ERROR_END);
-            this.targetJdbc.rollbackTransaction();
-
-            errorRecord = new ErrorRecord(line);
-            errorRecord.setMessages(e.getErrorMessages());
-            
+            errorRecord = this.makeFileUploadErrorRecord(line, e);
             throw e;
         } catch (Exception e) {
-            this.uploadFile.setStatus(Status.ERROR_END);
-            this.targetJdbc.rollbackTransaction();
-            
-            errorRecord = new ErrorRecord(line);
-            String errorMessage = ResourceBundleHelper.getInstance().getMessage(MetaGridMessages.ERROR);
-            ErrorMessage message = new ErrorMessage(errorMessage);
-            errorRecord.addMessage(message);
-            
+            errorRecord = this.makeSystemErrorRecord(line);
             throw e;
         } finally {
-            this.uploadFile.getProcessingTime().end();
-            this.uploadFile.getRecordCount().increment();
+            this.targetJdbc.rollbackTransaction();
+            
+            this.end();
+
+            JdbcHelper repository = JdbcHelper.getRepositoryHelper();
             
             repository.beginTransaction();
-            if (errorRecord == null) {
-                uploadFileRepository.update(uploadFile);
-            } else {
-                uploadFileRepository.addErrorRecord(uploadFile, errorRecord);
-            }
+            this.saveUploadResult(errorRecord);
             repository.commitTransaction();
+        }
+    }
+
+    private void begin() {
+        this.uploadFile.setStatus(Status.PROCESSING);
+        this.uploadFile.getProcessingTime().begin();
+    }
+    
+    private void end() {
+        this.uploadFile.getProcessingTime().end();
+        this.uploadFile.getRecordCount().increment();
+    }
+
+    private ErrorRecord makeFileUploadErrorRecord(String line, FileUploadProcessException e) {
+        ErrorRecord errorRecord = new ErrorRecord(line);
+        errorRecord.setMessages(e.getErrorMessages());
+        return errorRecord;
+    }
+
+    private ErrorRecord makeSystemErrorRecord(String line) {
+        ErrorRecord errorRecord = new ErrorRecord(line);
+        
+        String errorMessage = ResourceBundleHelper.getInstance().getMessage(MetaGridMessages.ERROR);
+        ErrorMessage message = new ErrorMessage(errorMessage);
+        errorRecord.addMessage(message);
+        return errorRecord;
+    }
+
+    private void saveUploadResult(ErrorRecord errorRecord) {
+        UploadFileRepository uploadFileRepository = ComponentLoader.getComponent(UploadFileRepository.class);
+        
+        if (errorRecord == null) {
+            uploadFileRepository.update(uploadFile);
+        } else {
+            this.uploadFile.setStatus(Status.ERROR_END);
+            uploadFileRepository.addErrorRecord(uploadFile, errorRecord);
         }
     }
 }
