@@ -3,6 +3,7 @@ package com.github.gl8080.metagrid.core.application.upload;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorMessage;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
+import com.github.gl8080.metagrid.core.domain.upload.FileUploadProcessException;
 import com.github.gl8080.metagrid.core.domain.upload.Status;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
@@ -36,6 +37,14 @@ public class FileUploadProcessor implements FileLineProcessor {
             this.targetJdbc.beginTransaction();
             this.delegate.process(line);
             this.targetJdbc.commitTransaction();
+        } catch (FileUploadProcessException e) {
+            this.uploadFile.setStatus(Status.ERROR_END);
+            this.targetJdbc.rollbackTransaction();
+
+            errorRecord = new ErrorRecord(line);
+            errorRecord.setMessages(e.getErrorMessages());
+            
+            throw e;
         } catch (Exception e) {
             this.uploadFile.setStatus(Status.ERROR_END);
             this.targetJdbc.rollbackTransaction();
