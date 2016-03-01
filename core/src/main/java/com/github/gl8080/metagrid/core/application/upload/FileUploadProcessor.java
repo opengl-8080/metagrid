@@ -1,6 +1,5 @@
 package com.github.gl8080.metagrid.core.application.upload;
 
-import com.github.gl8080.metagrid.core.domain.upload.ErrorMessage;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
 import com.github.gl8080.metagrid.core.domain.upload.FileUploadProcessException;
@@ -9,8 +8,6 @@ import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.util.ComponentLoader;
-import com.github.gl8080.metagrid.core.util.message.MetaGridMessages;
-import com.github.gl8080.metagrid.core.util.message.ResourceBundleHelper;
 
 public class FileUploadProcessor implements FileLineProcessor {
     
@@ -35,10 +32,11 @@ public class FileUploadProcessor implements FileLineProcessor {
             this.delegate.process(line);
             this.targetJdbc.commitTransaction();
         } catch (FileUploadProcessException e) {
-            errorRecord = this.makeFileUploadErrorRecord(line, e);
+            errorRecord = new ErrorRecord(e, line);
             throw e;
         } catch (Exception e) {
-            errorRecord = this.makeSystemErrorRecord(line);
+            errorRecord = new ErrorRecord(line);
+            errorRecord.addSystemErrorMessage();
             throw e;
         } finally {
             this.targetJdbc.rollbackTransaction();
@@ -51,21 +49,6 @@ public class FileUploadProcessor implements FileLineProcessor {
             this.saveUploadResult(errorRecord);
             repository.commitTransaction();
         }
-    }
-
-    private ErrorRecord makeFileUploadErrorRecord(String line, FileUploadProcessException e) {
-        ErrorRecord errorRecord = new ErrorRecord(line);
-        errorRecord.setMessages(e.getErrorMessages());
-        return errorRecord;
-    }
-
-    private ErrorRecord makeSystemErrorRecord(String line) {
-        ErrorRecord errorRecord = new ErrorRecord(line);
-        
-        String errorMessage = ResourceBundleHelper.getInstance().getMessage(MetaGridMessages.ERROR);
-        ErrorMessage message = new ErrorMessage(errorMessage);
-        errorRecord.addMessage(message);
-        return errorRecord;
     }
 
     private void saveUploadResult(ErrorRecord errorRecord) {
