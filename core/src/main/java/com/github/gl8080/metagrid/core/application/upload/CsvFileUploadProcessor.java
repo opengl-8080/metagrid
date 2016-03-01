@@ -1,5 +1,6 @@
 package com.github.gl8080.metagrid.core.application.upload;
 
+import com.github.gl8080.metagrid.core.domain.upload.ErrorMessage;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
 import com.github.gl8080.metagrid.core.domain.upload.Status;
@@ -7,6 +8,8 @@ import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.util.ComponentLoader;
+import com.github.gl8080.metagrid.core.util.message.MetaGridMessages;
+import com.github.gl8080.metagrid.core.util.message.ResourceBundleHelper;
 
 public class CsvFileUploadProcessor implements FileLineProcessor {
     
@@ -38,6 +41,9 @@ public class CsvFileUploadProcessor implements FileLineProcessor {
             this.targetJdbc.rollbackTransaction();
             
             errorRecord = new ErrorRecord(line);
+            String errorMessage = ResourceBundleHelper.getInstance().getMessage(MetaGridMessages.ERROR);
+            ErrorMessage message = new ErrorMessage(errorMessage);
+            errorRecord.addMessage(message);
             
             throw e;
         } finally {

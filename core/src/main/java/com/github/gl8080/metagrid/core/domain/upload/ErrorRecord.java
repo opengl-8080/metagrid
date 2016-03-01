@@ -43,4 +43,8 @@ public class ErrorRecord implements Iterable<ErrorMessage> {
     public Iterator<ErrorMessage> iterator() {
         return new ArrayList<>(this.messages).iterator();
     }
+
+    public List<ErrorMessage> getMessages() {
+        return new ArrayList<>(this.messages);
+    }
 }

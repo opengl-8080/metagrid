@@ -13,6 +13,10 @@ public class ErrorMessage {
         this.message = message;
     }
     
+    public ErrorMessage(String message) {
+        this(null, message);
+    }
+
     public Long getId() {
         return id;
     }

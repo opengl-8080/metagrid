@@ -6,11 +6,13 @@ import static org.hamcrest.CoreMatchers.*;
 import java.io.File;
 
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import com.github.gl8080.metagrid.core.domain.upload.ErrorMessage;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
 import com.github.gl8080.metagrid.core.domain.upload.RecordCount;
@@ -20,6 +22,8 @@ import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.domain.upload.csv.CsvProcessException;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.util.ComponentLoader;
+import com.github.gl8080.metagrid.core.util.message.MetaGridMessages;
+import com.github.gl8080.metagrid.core.util.message.ResourceBundleHelper;
 
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
 import mockit.Delegate;
@@ -31,6 +35,11 @@ import mockit.VerificationsInOrder;
 @RunWith(HierarchicalContextRunner.class)
 public class CsvFileUploadProcessorTest {
 
+    @BeforeClass
+    public static void init() {
+        ResourceBundleHelper.initialize();
+    }
+    
     public static class Base {
 
         public UploadFile uploadFile;
@@ -111,6 +120,27 @@ public class CsvFileUploadProcessorTest {
                     uploadFileRepository.addErrorRecord(uploadFile, errorRecord = withCapture());
                     
                     assertThat(errorRecord.getContents()).isEqualTo("test");
+                }};
+            }
+            
+            @Test
+            public void エラーメッセージにデフォルトメッセージが設定されていること() throws Exception {
+                // exercise
+                try {
+                    processor.process("test");
+                } catch (Exception e) {/*ignore*/}
+                
+                // verify
+                final String message = ResourceBundleHelper.getInstance().getMessage(MetaGridMessages.ERROR);
+                
+                new Verifications() {{
+                    ErrorRecord errorRecord;
+                    uploadFileRepository.addErrorRecord(uploadFile, errorRecord = withCapture());
+                    
+                    ErrorMessage errorMessage = errorRecord.getMessages().get(0);
+                    
+                    assertThat(errorMessage.getFieldName()).as("フィールド名").isNull();
+                    assertThat(errorMessage.getMessage()).as("メッセージ").isEqualTo(message);
                 }};
             }
             
