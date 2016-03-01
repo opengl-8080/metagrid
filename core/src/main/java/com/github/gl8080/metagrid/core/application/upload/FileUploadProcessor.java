@@ -29,7 +29,7 @@ public class FileUploadProcessor implements FileLineProcessor {
         ErrorRecord errorRecord = null;
 
         try {
-            this.begin();
+            this.uploadFile.beginProcess();
             
             this.targetJdbc.beginTransaction();
             this.delegate.process(line);
@@ -43,7 +43,7 @@ public class FileUploadProcessor implements FileLineProcessor {
         } finally {
             this.targetJdbc.rollbackTransaction();
             
-            this.end();
+            this.uploadFile.endProcess();
 
             JdbcHelper repository = JdbcHelper.getRepositoryHelper();
             
@@ -51,16 +51,6 @@ public class FileUploadProcessor implements FileLineProcessor {
             this.saveUploadResult(errorRecord);
             repository.commitTransaction();
         }
-    }
-
-    private void begin() {
-        this.uploadFile.setStatus(Status.PROCESSING);
-        this.uploadFile.getProcessingTime().begin();
-    }
-    
-    private void end() {
-        this.uploadFile.getProcessingTime().end();
-        this.uploadFile.getRecordCount().increment();
     }
 
     private ErrorRecord makeFileUploadErrorRecord(String line, FileUploadProcessException e) {

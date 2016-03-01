@@ -86,4 +86,14 @@ public class UploadFile {
         Objects.requireNonNull(status);
         this.status = status;
     }
+
+    public void beginProcess() {
+        this.status = Status.PROCESSING;
+        this.processingTime.begin();
+    }
+
+    public void endProcess() {
+        this.processingTime.end();
+        this.recordCount.increment();
+    }
 }
