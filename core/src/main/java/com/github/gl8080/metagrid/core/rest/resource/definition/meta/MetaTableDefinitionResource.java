@@ -20,11 +20,11 @@ import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefin
 import com.github.gl8080.metagrid.core.domain.definition.actual.ActualTableDefinitionRepository;
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinition;
 import com.github.gl8080.metagrid.core.domain.definition.meta.MetaTableDefinitionRepository;
+import com.github.gl8080.metagrid.core.domain.upload.FileUploadProcessException;
 import com.github.gl8080.metagrid.core.domain.upload.RecordCount;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.domain.upload.csv.CsvFileUploadTask;
-import com.github.gl8080.metagrid.core.domain.upload.csv.CsvProcessException;
 import com.github.gl8080.metagrid.core.domain.upload.csv.CsvRecordParser;
 import com.github.gl8080.metagrid.core.domain.upload.csv.CsvRecordProcessor;
 import com.github.gl8080.metagrid.core.domain.upload.csv.converter.MetaTableDefinitionCsvConverter;
@@ -78,7 +78,7 @@ public class MetaTableDefinitionResource {
                     ActualTableDefinition acutalTableDef = acutalRepo.findByPhysicalName(record.physicalName);
                     
                     if (acutalTableDef == null) {
-                        throw new CsvProcessException();
+                        throw new FileUploadProcessException();
                     }
                     
                     MetaTableDefinition metaTableDef = MetaTableDefinition.from(acutalTableDef);

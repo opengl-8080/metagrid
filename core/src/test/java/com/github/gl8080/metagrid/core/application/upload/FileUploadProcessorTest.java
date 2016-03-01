@@ -15,11 +15,11 @@ import org.junit.runner.RunWith;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorMessage;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
+import com.github.gl8080.metagrid.core.domain.upload.FileUploadProcessException;
 import com.github.gl8080.metagrid.core.domain.upload.RecordCount;
 import com.github.gl8080.metagrid.core.domain.upload.Status;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
-import com.github.gl8080.metagrid.core.domain.upload.csv.CsvProcessException;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.util.ComponentLoader;
 import com.github.gl8080.metagrid.core.util.message.MetaGridMessages;
@@ -33,7 +33,7 @@ import mockit.Verifications;
 import mockit.VerificationsInOrder;
 
 @RunWith(HierarchicalContextRunner.class)
-public class CsvFileUploadProcessorTest {
+public class FileUploadProcessorTest {
 
     @BeforeClass
     public static void init() {
@@ -57,12 +57,12 @@ public class CsvFileUploadProcessorTest {
         @Mocked
         public ComponentLoader loader;
         
-        public CsvFileUploadProcessor processor;
+        public FileUploadProcessor processor;
         
         @Rule
         public ExpectedException ex = ExpectedException.none();
         public Exception exception = new Exception();
-        public CsvProcessException csvProcessException = new CsvProcessException();
+        public FileUploadProcessException fileUploadProcessException = new FileUploadProcessException();
         
         @Before
         public void _setup() {
@@ -77,12 +77,16 @@ public class CsvFileUploadProcessorTest {
             processedRecordCount = recordCount.getProcessedCount();
             processTime = uploadFile.getProcessingTime().getTime();
             
-            processor = new CsvFileUploadProcessor(uploadFile, delegate, jdbc);
+            processor = new FileUploadProcessor(uploadFile, delegate, jdbc);
         }
     }
     
     public class 処理結果の記録 extends Base {
-
+        
+//        public class 委譲先がアップロード処理例外をスローした場合 extends Base {
+//            
+//        }
+        
         public class 委譲先が異常終了した場合 extends Base {
 
             @Before
@@ -259,12 +263,12 @@ public class CsvFileUploadProcessorTest {
             }};
         }
         
-        public class 委譲先がCSV処理例外をスローした場合 extends Base {
+        public class 委譲先がアップロード処理例外をスローした場合 extends Base {
 
             @Before
             public void setup() {
                 new NonStrictExpectations() {{
-                    delegate.process(anyString); result = csvProcessException;
+                    delegate.process(anyString); result = fileUploadProcessException;
                 }};
             }
 
@@ -286,7 +290,7 @@ public class CsvFileUploadProcessorTest {
             @Test
             public void スローされた例外がそのままスローされ直されていること() throws Exception {
                 // verify
-                ex.expect(is(csvProcessException));
+                ex.expect(is(fileUploadProcessException));
                 
                 // exercise
                 processor.process("test");

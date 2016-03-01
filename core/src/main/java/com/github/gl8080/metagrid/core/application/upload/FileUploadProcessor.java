@@ -11,13 +11,13 @@ import com.github.gl8080.metagrid.core.util.ComponentLoader;
 import com.github.gl8080.metagrid.core.util.message.MetaGridMessages;
 import com.github.gl8080.metagrid.core.util.message.ResourceBundleHelper;
 
-public class CsvFileUploadProcessor implements FileLineProcessor {
+public class FileUploadProcessor implements FileLineProcessor {
     
     private UploadFile uploadFile;
     private FileLineProcessor delegate;
     private JdbcHelper targetJdbc;
     
-    public CsvFileUploadProcessor(UploadFile uploadFile, FileLineProcessor delegate, JdbcHelper jdbc) {
+    public FileUploadProcessor(UploadFile uploadFile, FileLineProcessor delegate, JdbcHelper jdbc) {
         this.uploadFile = uploadFile;
         this.delegate = delegate;
         this.targetJdbc = jdbc;
