@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.hamcrest.CoreMatchers.*;
 
 import java.io.File;
-import java.util.List;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -13,7 +12,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
-import com.github.gl8080.metagrid.core.domain.upload.ErrorMessage;
 import com.github.gl8080.metagrid.core.domain.upload.ErrorRecord;
 import com.github.gl8080.metagrid.core.domain.upload.FileLineProcessor;
 import com.github.gl8080.metagrid.core.domain.upload.FileUploadProcessException;
@@ -23,7 +21,6 @@ import com.github.gl8080.metagrid.core.domain.upload.UploadFile;
 import com.github.gl8080.metagrid.core.domain.upload.UploadFileRepository;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.JdbcHelper;
 import com.github.gl8080.metagrid.core.util.ComponentLoader;
-import com.github.gl8080.metagrid.core.util.message.MetaGridMessages;
 import com.github.gl8080.metagrid.core.util.message.ResourceBundleHelper;
 
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
@@ -86,25 +83,15 @@ public class FileUploadProcessorTest {
         
         public class アップロード処理例外 extends 例外時の共通テスト {
 
-            private ErrorMessage[] errorMessages = {
-                new ErrorMessage("filed1", "message1"),
-                new ErrorMessage("filed2", "message2"),
-                new ErrorMessage("filed3", "message3")
-            };
-            
             @Before @Override
             public void setup() {
-                for (ErrorMessage message : errorMessages) {
-                    fileUploadProcessException.addMessage(message);
-                }
-                
                 new NonStrictExpectations() {{
                     delegate.process(anyString); result = fileUploadProcessException;
                 }};
             }
             
             @Test
-            public void エラーメッセージに例外にセットされたメッセージが全て設定されていること() throws Exception {
+            public void エラーメッセージに例外のメッセージが追加されていること() throws Exception {
                 // exercise
                 try {
                     processor.process("test");
@@ -113,17 +100,10 @@ public class FileUploadProcessorTest {
                 // verify
                 new Verifications() {{
                     ErrorRecord errorRecord;
+                    
                     uploadFileRepository.addErrorRecord(uploadFile, errorRecord = withCapture());
                     
-                    List<ErrorMessage> messages = errorRecord.getMessages();
-                    assertThat(messages.size()).as("エラーメッセージの数").isEqualTo(errorMessages.length);
-                    
-                    for (int i=0; i<errorRecord.getMessages().size(); i++) {
-                        ErrorMessage errorMessage = errorRecord.getMessages().get(i);
-
-                        assertThat(errorMessage.getFieldName()).as("フィールド名").isEqualTo(errorMessages[i].getFieldName());
-                        assertThat(errorMessage.getMessage()).as("メッセージ").isEqualTo(errorMessages[i].getMessage());
-                    }
+                    errorRecord.addError(fileUploadProcessException); times = 1;
                 }};
             }
         }
@@ -131,23 +111,17 @@ public class FileUploadProcessorTest {
         public class 異常終了 extends 例外時の共通テスト {
             
             @Test
-            public void エラーメッセージにデフォルトメッセージが設定されていること() throws Exception {
+            public void エラーメッセージにシステムエラーが追加されていること() throws Exception {
                 // exercise
                 try {
                     processor.process("test");
                 } catch (Exception e) {/*ignore*/}
                 
                 // verify
-                final String message = ResourceBundleHelper.getInstance().getMessage(MetaGridMessages.ERROR);
-                
                 new Verifications() {{
                     ErrorRecord errorRecord;
                     uploadFileRepository.addErrorRecord(uploadFile, errorRecord = withCapture());
-                    
-                    ErrorMessage errorMessage = errorRecord.getMessages().get(0);
-                    
-                    assertThat(errorMessage.getFieldName()).as("フィールド名").isNull();
-                    assertThat(errorMessage.getMessage()).as("メッセージ").isEqualTo(message);
+                    errorRecord.addSystemErrorMessage(); times = 1;
                 }};
             }
         }

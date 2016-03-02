@@ -32,7 +32,8 @@ public class FileUploadProcessor implements FileLineProcessor {
             this.delegate.process(line);
             this.targetJdbc.commitTransaction();
         } catch (FileUploadProcessException e) {
-            errorRecord = new ErrorRecord(e, line);
+            errorRecord = new ErrorRecord(line);
+            errorRecord.addError(e);
             throw e;
         } catch (Exception e) {
             errorRecord = new ErrorRecord(line);

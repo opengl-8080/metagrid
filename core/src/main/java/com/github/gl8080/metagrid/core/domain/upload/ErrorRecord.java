@@ -18,14 +18,6 @@ public class ErrorRecord implements Iterable<ErrorMessage> {
         Objects.requireNonNull(contents);
         this.contents = contents;
     }
-    
-    public ErrorRecord(FileUploadProcessException e, String contents) {
-        Objects.requireNonNull(e);
-        Objects.requireNonNull(contents);
-        
-        this.setMessages(e.getErrorMessages());
-        this.contents = contents;
-    }
 
     public Long getId() {
         return id;
@@ -63,5 +55,10 @@ public class ErrorRecord implements Iterable<ErrorMessage> {
 
     public List<ErrorMessage> getMessages() {
         return new ArrayList<>(this.messages);
+    }
+
+    public void addError(FileUploadProcessException ex) {
+        Objects.requireNonNull(ex);
+        this.messages.addAll(ex.getErrorMessages());
     }
 }
