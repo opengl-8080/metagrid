@@ -28,6 +28,7 @@ import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.AutoGenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.SequenceIdStrategy;
+import com.github.gl8080.metagrid.core.util.ThrowableRunner;
 
 public class JdbcHelper {
     private static final Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
@@ -254,5 +255,17 @@ public class JdbcHelper {
                 return map;
             }
         });
+    }
+
+    public void withTransaction(ThrowableRunner runner) {
+        try {
+            this.beginTransaction();
+            runner.run();
+            this.commitTransaction();
+        } catch (Exception e) {
+            throw new MetaGridException(e);
+        } finally {
+            this.rollbackTransaction();
+        }
     }
 }

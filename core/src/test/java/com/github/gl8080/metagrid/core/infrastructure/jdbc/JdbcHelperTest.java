@@ -1,6 +1,7 @@
 package com.github.gl8080.metagrid.core.infrastructure.jdbc;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.CoreMatchers.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,20 +14,25 @@ import java.util.Map;
 import javax.sql.DataSource;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
+import com.github.gl8080.metagrid.core.MetaGridException;
 import com.github.gl8080.metagrid.core.config.DataSourceConfig;
 import com.github.gl8080.metagrid.core.config.MetagridConfig;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.AutoGenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.GenerateIdStrategy;
 import com.github.gl8080.metagrid.core.infrastructure.jdbc.id.SequenceIdStrategy;
 import com.github.gl8080.metagrid.core.util.Maps;
+import com.github.gl8080.metagrid.core.util.ThrowableRunner;
 
 import de.bechte.junit.runners.context.HierarchicalContextRunner;
 import mockit.Mocked;
 import mockit.NonStrictExpectations;
 import mockit.Verifications;
+import mockit.VerificationsInOrder;
 
 @RunWith(HierarchicalContextRunner.class)
 public class JdbcHelperTest {
@@ -82,6 +88,67 @@ public class JdbcHelperTest {
             sql = new Sql(SQL_TEST);
         }
     }
+    
+    public class 自動トランザクション制御 extends Base {
+        
+        @Mocked
+        private ThrowableRunner runner;
+        
+        @Test
+        public void 何もなければコミットされる() throws Exception {
+            // exercise
+            helper.withTransaction(runner);
+            
+            // verify
+            new VerificationsInOrder() {{
+                helper.beginTransaction();
+                runner.run();
+                helper.commitTransaction();
+            }};
+        }
+        
+        @Test
+        public void 例外がスローされた場合はロールバックされる() throws Exception {
+            // setup
+            new NonStrictExpectations() {{
+                runner.run(); result = new NullPointerException();
+            }};
+            
+            // exercise
+            try {
+                helper.withTransaction(runner);
+            } catch (Exception e) {/*ignore*/}
+            
+            // verify
+            new VerificationsInOrder() {{
+                helper.beginTransaction();
+                runner.run();
+                helper.rollbackTransaction();
+            }};
+        }
+        
+        @Rule
+        public ExpectedException ex = ExpectedException.none();
+        
+        @Test
+        public void スローされた例外をラップしたランタイム例外がスローされる() throws Exception {
+            // setup
+            final Exception e = new NullPointerException("test");
+            
+            new NonStrictExpectations() {{
+                runner.run(); result = e;
+            }};
+            
+            // verify
+            ex.expect(MetaGridException.class);
+            ex.expectCause(is(e));
+            
+            // exercise
+            helper.withTransaction(runner);
+        }
+    }
+    
+    
     
     public class トランザクション制御メソッド {
         
